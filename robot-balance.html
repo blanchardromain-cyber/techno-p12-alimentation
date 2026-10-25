@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P12 — Le robot cuiseur à balance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--navy:#1F3864;--blue:#2E75B6;--or:#C8611A;--vt:#1E6B3B;--rouge:#B42318;--fond:#f4f7fb;--bord:#dde5ee;--txt:#1f2430;--gris:#566070;
+        --q:#2E75B6;--h:#7A4FBF;--i:#C8611A;--c:#1E6B3B;--r:#B42318}
+  *{box-sizing:border-box}
+  body{font-family:'Inter',Arial,sans-serif;margin:0;background:var(--fond);color:var(--txt);line-height:1.5;font-size:16px}
+  .pbar{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--bord)}
+  .pbar-in{max-width:980px;margin:0 auto;padding:8px 16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .pbar-in a.retour{color:var(--navy);font-weight:700;text-decoration:none;font-size:14px;margin-right:auto}
+  main{max-width:980px;margin:0 auto;padding:18px 16px 60px}
+  header.band{background:var(--navy);color:#fff;border-radius:14px;padding:20px 22px}
+  header.band .k{font-size:12px;letter-spacing:.04em;color:#bcd2ee;font-weight:600}
+  header.band h1{margin:6px 0 0;font-size:24px;line-height:1.25}
+  header.band p{margin:8px 0 0;color:#dce8f8;font-size:15px}
+  .comp{margin-top:10px;font-size:13px;color:#dce8f8}
+  section.etape{background:#fff;border:1px solid var(--bord);border-radius:14px;padding:18px 20px;margin-top:16px;border-left:6px solid var(--c1,var(--blue))}
+  section.etape > h2{margin:0 0 10px;font-size:19px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .badge{display:inline-block;border-radius:999px;padding:3px 12px;font-size:12px;font-weight:800;color:#fff;background:var(--c1,var(--blue));letter-spacing:.03em;text-transform:uppercase}
+  #question{--c1:var(--q)} #hypothese{--c1:var(--h)} #capteur,#etape,#reglages,#robot{--c1:var(--i)} #conclure{--c1:var(--c)} #retenir{--c1:var(--r)}
+  .consigne{background:#F5F8FC;border-radius:10px;padding:10px 14px;margin:8px 0 12px}
+  .btn{font:inherit;font-size:15px;font-weight:700;border:none;border-radius:10px;padding:10px 18px;cursor:pointer;background:var(--navy);color:#fff}
+  .btn:hover{filter:brightness(1.12)} .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn.sec{background:#fff;color:var(--navy);border:2px solid var(--navy)}
+  .btn.vert{background:var(--vt)} .btn.or{background:var(--or)}
+  .btn:focus-visible,.opt:focus-visible,.fl:focus-visible{outline:3px solid #F2B705;outline-offset:2px}
+  .rang{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+  .retour-msg{margin-top:10px;border-radius:10px;padding:10px 14px;font-size:15px;display:none}
+  .retour-msg.ok{display:block;background:#E8F5EC;border-left:5px solid var(--vt)}
+  .retour-msg.ko{display:block;background:#FDECEA;border-left:5px solid var(--rouge)}
+  .retour-msg.info{display:block;background:#FFF6E5;border-left:5px solid var(--or)}
+  .opts{display:grid;gap:8px}
+  .opt{display:flex;gap:10px;align-items:flex-start;background:#fff;border:2px solid var(--bord);border-radius:10px;padding:10px 12px;cursor:pointer;font:inherit;text-align:left;color:var(--txt);width:100%}
+  .opt[aria-pressed="true"]{border-color:var(--navy);background:#EEF3FA}
+  .opt.bon{border-color:var(--vt);background:#E8F5EC} .opt.faux{border-color:var(--rouge);background:#FDECEA}
+  textarea,input[type=text],input[type=number],select{font:inherit;font-size:16px;border:2px solid var(--bord);border-radius:8px;padding:8px 10px;background:#fff;color:var(--txt)}
+  textarea{width:100%;resize:vertical}
+  textarea:focus,input:focus,select:focus{border-color:var(--blue);outline:none}
+  .verrou{font-size:14px;color:var(--gris);font-style:italic}
+  .recette{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;font-size:15px}
+  .recette div{background:#FFF8EF;border:1px solid #F3D9BC;border-radius:8px;padding:8px 12px}
+  /* Liste ordonnée par flèches */
+  ol.ordre{list-style:none;margin:0;padding:0;display:grid;gap:6px;counter-reset:n}
+  ol.ordre li{display:flex;align-items:center;gap:8px;background:#fff;border:2px solid var(--bord);border-radius:10px;padding:6px 8px;counter-increment:n}
+  ol.ordre li::before{content:counter(n);font-weight:800;color:var(--gris);min-width:18px;text-align:center}
+  ol.ordre li.bon{border-color:var(--vt)} ol.ordre li.faux{border-color:var(--rouge)}
+  .sym{flex-shrink:0;width:46px;height:28px}
+  .lib{flex:1;font-size:15px}
+  .fl{font:inherit;width:40px;height:36px;border-radius:8px;border:2px solid var(--bord);background:#F5F8FC;cursor:pointer;font-size:16px}
+  .fl:disabled{opacity:.3;cursor:not-allowed}
+  /* Tableau des réglages */
+  .tab-wrap{overflow-x:auto}
+  table.reg{border-collapse:collapse;width:100%;font-size:15px;font-variant-numeric:tabular-nums}
+  table.reg th{background:var(--navy);color:#fff;padding:8px;text-align:left}
+  table.reg td{border:1px solid var(--bord);padding:6px 8px;vertical-align:middle}
+  table.reg input[type=text]{width:96px}
+  td.bon input,td.bon select{border-color:var(--vt);background:#F1FAF3}
+  td.faux input,td.faux select{border-color:var(--rouge);background:#FFF4F2}
+  .aide{font-size:13px;color:var(--rouge);display:block;margin-top:2px}
+  /* Robot */
+  .scene{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+  .panneau{background:#F7F9FC;border:1px solid var(--bord);border-radius:12px;padding:10px}
+  .panneau h3{margin:2px 4px 8px;font-size:15px;color:var(--navy)}
+  #algoBox{max-height:560px;overflow:auto;background:#fff;border-radius:8px}
+  #algoSvg{display:block;width:100%;height:auto}
+  #algoSvg .bloc *{transition:fill .2s,stroke .2s}
+  #algoSvg .bloc.actif rect,#algoSvg .bloc.actif polygon,#algoSvg .bloc.actif ellipse{fill:#FFE9A8;stroke:#C8611A;stroke-width:3.5}
+  #algoSvg .lien.actif{stroke:#C8611A;stroke-width:3}
+  #robotSvg{display:block;width:100%;max-width:420px;margin:0 auto;height:auto}
+  .journal{font-size:14px;background:#fff;border:1px solid var(--bord);border-radius:8px;padding:8px 10px;height:118px;overflow:auto;margin-top:8px}
+  .journal div{padding:2px 0;border-bottom:1px dashed #edf1f5}
+  .retenir{background:#FFF4F2;border-radius:10px;padding:12px 16px;font-size:16px}
+  .retenir li{margin:4px 0}
+  .footer{color:var(--gris);font-size:12px;text-align:center;margin-top:28px}
+  .sr{position:absolute;left:-9999px}
+  @media (max-width:760px){
+    .scene{grid-template-columns:1fr}
+    header.band h1{font-size:21px}
+    section.etape{padding:14px 14px}
+    .btn{padding:10px 14px}
+  }
+  @media (min-width:1400px){ body{font-size:18px} main{max-width:1200px} .pbar-in{max-width:1200px} .lib{font-size:17px} }
+  @media (prefers-reduced-motion:reduce){ *{transition:none!important} }
+  @media print{
+    .pbar,.btn,.fl,.rang,.no-print,#capteur .opts,.journal{display:none!important}
+    body{background:#fff;font-size:12pt} section.etape{break-inside:avoid;border:1px solid #999}
+    #algoBox{max-height:none;overflow:visible}
+    .print-only{display:block!important}
+  }
+  .print-only{display:none}
+</style>
+</head>
+<body>
+<div class="pbar"><div class="pbar-in">
+  <a class="retour" href="./index.html">&larr; Séquence P12</a>
+  <button class="btn sec" id="btnRecommencer" type="button" title="Efface ce que tu as fait sur ce poste">Recommencer</button>
+  <button class="btn sec" id="btnImprimer" type="button">Imprimer</button>
+</div></div>
+
+<main>
+  <header class="band">
+    <div class="k">TECHNOLOGIE · 4ᵉ · Séquence P12 · Activité 3</div>
+    <h1>Le robot cuiseur à balance</h1>
+    <p>Comment un robot cuiseur sait-il qu'il peut passer à l'étape suivante d'une recette ?</p>
+    <div class="comp"><strong>Compétence :</strong> Comprendre et modifier un programme associé à une fonctionnalité d'un objet ou d'un système technique · <strong>CPS travaillée :</strong> Persévérer · non noté</div>
+  </header>
+
+  <section class="etape" id="question" data-consigne>
+    <h2><span class="badge">1 · La question</span></h2>
+    <p>En activité 2, une recette de cookies demandait au robot : <em>« SI le beurre ET la cassonade sont dans le bol ALORS fouetter… »</em></p>
+    <p><strong>Un robot cuiseur n'a pas d'yeux.</strong> Comment peut-il savoir que le cuisinier a bien ajouté le beurre et la cassonade ?</p>
+  </section>
+
+  <section class="etape" id="hypothese">
+    <h2><span class="badge">2 · Mon hypothèse</span></h2>
+    <p class="consigne" data-consigne>Choisis l'hypothèse qui te semble la plus juste. Il n'y a pas de mauvaise réponse à cette étape : tu la vérifieras ensuite.</p>
+    <div class="opts" id="hypOpts" role="group" aria-label="Hypothèses">
+      <button class="opt" type="button" data-v="camera" aria-pressed="false">Il voit les ingrédients avec une caméra.</button>
+      <button class="opt" type="button" data-v="balance" aria-pressed="false">Il pèse ce que l'on ajoute dans le bol.</button>
+      <button class="opt" type="button" data-v="bouton" aria-pressed="false">Le cuisinier appuie sur un bouton à chaque étape.</button>
+      <button class="opt" type="button" data-v="autre" aria-pressed="false">Autre idée (je l'écris) :</button>
+    </div>
+    <textarea id="hypTxt" rows="2" placeholder="Écris ton hypothèse avec tes mots…" style="margin-top:8px"></textarea>
+  </section>
+
+  <section class="etape" id="capteur">
+    <h2><span class="badge">3 · J'investigue</span> Le capteur</h2>
+    <p class="consigne" data-consigne>Notre robot possède une <strong>balance</strong> sous le bol : c'est son capteur. Parmi ces conditions, laquelle le robot peut-il <strong>vraiment tester</strong> ?</p>
+    <div class="opts" id="capOpts" role="group" aria-label="Conditions">
+      <button class="opt" type="button" data-v="beurre" aria-pressed="false">« Le beurre et la cassonade sont-ils dans le bol ? »</button>
+      <button class="opt" type="button" data-v="masse" aria-pressed="false">« Masse ajoutée ≥ 225 g ? »</button>
+      <button class="opt" type="button" data-v="mou" aria-pressed="false">« Le beurre est-il mou ? »</button>
+      <button class="opt" type="button" data-v="pret" aria-pressed="false">« Le cuisinier a-t-il fini ? »</button>
+    </div>
+    <div class="retour-msg" id="capMsg" role="status" aria-live="polite"></div>
+  </section>
+
+  <section class="etape" id="etape">
+    <h2><span class="badge">3 · J'investigue</span> L'étape type de l'algorigramme</h2>
+    <div id="etapeVerrou" class="verrou">Termine d'abord l'étape « Le capteur ».</div>
+    <div id="etapeCorps" hidden>
+      <p class="consigne" data-consigne>Chaque étape de la recette suit le même modèle. Range ces 6 blocs dans l'ordre où le robot les exécute, avec les flèches ▲ et ▼.</p>
+      <ol class="ordre" id="ordre"></ol>
+      <div class="rang">
+        <button class="btn" type="button" id="btnOrdre">Vérifier l'ordre</button>
+      </div>
+      <div class="retour-msg" id="ordreMsg" role="status" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section class="etape" id="reglages">
+    <h2><span class="badge">3 · J'investigue</span> Les réglages de chaque étape</h2>
+    <div id="regVerrou" class="verrou">Termine d'abord l'étape type.</div>
+    <div id="regCorps" hidden>
+      <p class="consigne" data-consigne>Lis la recette. Pour chaque étape, calcule la <strong>masse ajoutée</strong> que la balance doit mesurer, puis choisis la vitesse et la durée.</p>
+      <div class="recette" aria-label="Recette des cookies">
+        <div><strong>Étape 1 :</strong> 125 g de beurre mou + 100 g de cassonade. Mélanger vitesse 2 pendant 1 min 30.</div>
+        <div><strong>Étape 2 :</strong> 1 œuf (50 g) + 1 sachet de sucre vanillé (8 g). Mélanger vitesse 2 pendant 30 s.</div>
+        <div><strong>Étape 3 :</strong> 180 g de farine + 5 g de levure. Mélanger vitesse 3 pendant 2 min.</div>
+        <div><strong>Étape 4 :</strong> 100 g de pépites de chocolat. Mélanger vitesse 4 pendant 10 s.</div>
+      </div>
+      <div class="tab-wrap" style="margin-top:12px">
+        <table class="reg" id="tabReg">
+          <thead><tr><th>Étape</th><th>Test : masse ajoutée ≥ … g ?</th><th>Vitesse du couteau</th><th>Durée (attendre)</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="rang"><button class="btn" type="button" id="btnReg">Vérifier les réglages</button></div>
+      <div class="retour-msg" id="regMsg" role="status" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section class="etape" id="robot">
+    <h2><span class="badge">3 · J'investigue</span> Le robot exécute ton algorigramme</h2>
+    <div id="robotVerrou" class="verrou">L'animation se lance quand ton algorigramme est juste.</div>
+    <div id="robotCorps" hidden>
+      <div class="rang no-print">
+        <button class="btn vert" type="button" id="btnLancer">▶ Lancer la recette</button>
+        <button class="btn or" type="button" id="btnPas">⏯ Pas à pas</button>
+        <button class="btn sec" type="button" id="btnStop">⟲ Réinitialiser</button>
+        <button class="btn sec" type="button" id="btnVue" aria-pressed="false">Vue de dessus</button>
+      </div>
+      <div class="scene" style="margin-top:12px">
+        <div class="panneau">
+          <h3>Mon algorigramme</h3>
+          <div id="algoBox"><svg id="algoSvg" role="img" aria-label="Algorigramme de la recette des cookies"></svg></div>
+        </div>
+        <div class="panneau">
+          <h3>Le robot (couvercle retiré pour voir le bol)</h3>
+          <svg id="robotSvg" viewBox="0 100 360 252" role="img" aria-label="Robot cuiseur vu de face : bol posé sur la balance, couteau au fond du bol">
+            <defs>
+              <clipPath id="clipBol"><polygon points="104,122 256,122 236,262 124,262"/></clipPath>
+              <linearGradient id="inox" x1="0" x2="1"><stop offset="0" stop-color="#C9D2DA"/><stop offset=".5" stop-color="#F3F6F8"/><stop offset="1" stop-color="#B8C2CB"/></linearGradient>
+            </defs>
+            <!-- Socle (contient le moteur et la balance) -->
+            <rect x="70" y="262" width="220" height="82" rx="14" fill="#E8ECEF" stroke="#4A5562" stroke-width="2.5"/>
+            <rect x="96" y="276" width="168" height="54" rx="6" fill="#16263A"/>
+            <text id="ecran1" x="180" y="297" text-anchor="middle" font-size="15" font-weight="700" fill="#8FD3FF">0 g</text>
+            <text id="ecran2" x="180" y="318" text-anchor="middle" font-size="11.5" fill="#CFE7FF">Prêt</text>
+            <!-- Bol -->
+            <g clip-path="url(#clipBol)">
+              <rect x="100" y="120" width="160" height="150" fill="#F7FAFC"/>
+              <g id="couches"></g>
+            </g>
+            <polygon points="104,122 256,122 236,262 124,262" fill="none" stroke="#4A5562" stroke-width="3"/>
+            <path d="M256,140 C292,142 292,200 246,206" fill="none" stroke="#4A5562" stroke-width="6" stroke-linecap="round"/>
+            <!-- Arbre moteur vertical, au fond du bol -->
+            <rect x="176" y="222" width="8" height="40" rx="2" fill="#5B6672"/>
+            <!-- Flou circulaire vu en perspective (vitesse élevée) -->
+            <ellipse id="flou" cx="180" cy="236" rx="48" ry="7" fill="#6B7783" opacity="0"/>
+            <!-- Lames vues par la tranche : leur longueur apparente varie avec la rotation -->
+            <g transform="translate(180,240)"><g id="lameBas"><path d="M-46,0 L-6,-3 L6,-3 L46,0 L6,3 L-6,3 Z" fill="url(#inox)" stroke="#4A5562" stroke-width="1.5"/></g></g>
+            <g transform="translate(180,230)"><g id="lameHaut"><path d="M-36,-2 L-5,-3 L5,-3 L36,-2 L5,3 L-5,3 Z" fill="url(#inox)" stroke="#4A5562" stroke-width="1.5"/></g></g>
+            <circle cx="180" cy="226" r="5" fill="#4A5562"/>
+            <!-- Vue de dessus (option) -->
+            <g id="vueDessus" opacity="0" transform="translate(-4,128) scale(.9)">
+              <rect x="6" y="6" width="104" height="104" rx="10" fill="#fff" stroke="#4A5562"/>
+              <text x="58" y="22" text-anchor="middle" font-size="10" fill="#4A5562">vue de dessus</text>
+              <circle cx="58" cy="64" r="38" fill="#F7FAFC" stroke="#4A5562" stroke-width="2"/>
+              <g transform="translate(58,64)"><g id="lamesDessus">
+                <path d="M0,-3 L32,-1 L32,1 L0,3 Z M0,-3 L-32,-1 L-32,1 L0,3 Z" fill="#9AA6B2" stroke="#4A5562"/>
+                <path d="M-3,0 L-1,-26 L1,-26 L3,0 Z M-3,0 L-1,26 L1,26 L3,0 Z" fill="#C3CCD5" stroke="#4A5562"/>
+              </g></g>
+              <circle cx="58" cy="64" r="4" fill="#4A5562"/>
+            </g>
+          </svg>
+          <div class="journal" id="journal" aria-live="polite"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="etape" id="conclure">
+    <h2><span class="badge">4 · Je conclus</span></h2>
+    <p class="consigne" data-consigne>Ton hypothèse était-elle juste ? Explique comment le robot sait qu'il peut passer à l'étape suivante.</p>
+    <p class="print-only" id="hypImpr"></p>
+    <textarea id="conclTxt" rows="3" placeholder="Mon hypothèse était… car…"></textarea>
+    <div class="rang"><button class="btn" type="button" id="btnConcl">Comparer avec la réponse attendue</button></div>
+    <div class="retour-msg" id="conclMsg" role="status" aria-live="polite"></div>
+  </section>
+
+  <section class="etape" id="retenir">
+    <h2><span class="badge">5 · Je retiens</span></h2>
+    <div class="retenir">
+      <ul>
+        <li>Un système <strong>automatisé</strong> fournit l'énergie et se pilote seul grâce à un <strong>programme</strong>.</li>
+        <li>Le programme ne peut tester que ce qu'un <strong>capteur</strong> mesure : « beurre ET cassonade ? » devient « <strong>masse ajoutée ≥ 225 g ?</strong> » grâce à la balance.</li>
+        <li>Une <strong>temporisation</strong> (« attendre 1 min 30 ») remplace le jugement du cuisinier sur la durée.</li>
+        <li>Algorigramme : <strong>ovale</strong> = début / fin, <strong>rectangle</strong> = traitement, <strong>losange</strong> = test, <strong>parallélogramme</strong> = entrée / sortie.</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="footer">Collège Saint Pierre – Les Essarts · Séquence P12</div>
+</main>
+
+<script>
+(function(){
+  "use strict";
+  var CLE = "p12_robot_balance_v1";
+  var $ = function(id){ return document.getElementById(id); };
+
+  /* Tolérance : accents, majuscules, ponctuation, espaces */
+  function norm(s){ return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g," ").trim(); }
+
+  /* ── Données ─────────────────────────────────────────── */
+  var BLOCS = {
+    tare: {type:"rect",   txt:"Mettre la balance à zéro (tare)"},
+    aff:  {type:"para",   txt:"Afficher les ingrédients à ajouter"},
+    test: {type:"losange",txt:"Masse ajoutée ≥ seuil ?"},
+    on:   {type:"rect",   txt:"Faire tourner le couteau à la vitesse choisie"},
+    att:  {type:"rect",   txt:"Attendre la durée choisie"},
+    off:  {type:"rect",   txt:"Arrêter le couteau"}
+  };
+  var MELANGE_INITIAL = ["att","test","off","aff","on","tare"];
+  var ETAPES = [
+    {ing:"125 g de beurre + 100 g de cassonade", m:225, v:2, d:90,  couleurs:[["#F3DC8A",125],["#B5793A",100]]},
+    {ing:"1 œuf + 1 sachet de sucre vanillé",    m:58,  v:2, d:30,  couleurs:[["#F6C342",50],["#FFF7E0",8]]},
+    {ing:"180 g de farine + 5 g de levure",       m:185, v:3, d:120, couleurs:[["#FBF6EA",180],["#FFFFFF",5]]},
+    {ing:"100 g de pépites de chocolat",          m:100, v:4, d:10,  couleurs:[["#4A2C1A",100]]}
+  ];
+  var DUREES = [[10,"10 s"],[30,"30 s"],[90,"1 min 30"],[120,"2 min"]];
+  function dureeTxt(d){ for (var i=0;i<DUREES.length;i++) if (DUREES[i][0]===d) return DUREES[i][1]; return d+" s"; }
+
+  /* ── État (sauvegardé sur le poste) ───────────────────── */
+  var etat = {hyp:"", hypTxt:"", cap:"", ordre:MELANGE_INITIAL.slice(), ordreOk:false, essaisOrdre:0,
+              reg:ETAPES.map(function(){return {m:"",v:"",d:""};}), regOk:false, essaisReg:0, concl:""};
+  function sauver(){ try{ localStorage.setItem(CLE, JSON.stringify(etat)); }catch(e){} }
+  function charger(){
+    try{ var s = JSON.parse(localStorage.getItem(CLE)||"null"); if (s && s.ordre && s.reg) etat = Object.assign(etat, s); }catch(e){}
+  }
+
+  /* ── Hypothèse ───────────────────────────────────────── */
+  function majHyp(){
+    document.querySelectorAll("#hypOpts .opt").forEach(function(b){ b.setAttribute("aria-pressed", b.dataset.v===etat.hyp ? "true":"false"); });
+    $("hypTxt").value = etat.hypTxt;
+    var lib = {camera:"Il voit les ingrédients avec une caméra.", balance:"Il pèse ce que l'on ajoute dans le bol.", bouton:"Le cuisinier appuie sur un bouton à chaque étape.", autre:""}[etat.hyp] || "";
+    $("hypImpr").textContent = "Mon hypothèse : " + (lib + " " + etat.hypTxt).trim();
+  }
+  document.querySelectorAll("#hypOpts .opt").forEach(function(b){
+    b.addEventListener("click", function(){ etat.hyp = (etat.hyp===b.dataset.v) ? "" : b.dataset.v; majHyp(); sauver(); });
+  });
+  $("hypTxt").addEventListener("input", function(){ etat.hypTxt = this.value; majHyp(); sauver(); });
+
+  /* ── Le capteur ──────────────────────────────────────── */
+  var CAP_RET = {
+    beurre:"Non : aucun capteur du robot ne reconnaît le beurre ou la cassonade. Le robot ne « voit » rien.",
+    masse:"Oui ! La balance mesure une masse : le robot compare un nombre (la masse ajoutée) à un seuil (225 g = 125 g de beurre + 100 g de cassonade).",
+    mou:"Non : le robot n'a pas de capteur qui mesure si le beurre est mou.",
+    pret:"Non : le robot ne peut pas savoir ce que pense le cuisinier. Il lui faut une grandeur mesurée."
+  };
+  function majCap(){
+    document.querySelectorAll("#capOpts .opt").forEach(function(b){
+      var choisi = b.dataset.v===etat.cap;
+      b.setAttribute("aria-pressed", choisi?"true":"false");
+      b.classList.toggle("bon", choisi && b.dataset.v==="masse");
+      b.classList.toggle("faux", choisi && b.dataset.v!=="masse");
+    });
+    var m = $("capMsg");
+    if (!etat.cap){ m.className="retour-msg"; m.textContent=""; }
+    else { m.className = "retour-msg " + (etat.cap==="masse"?"ok":"ko"); m.textContent = CAP_RET[etat.cap] + (etat.cap==="masse" ? "" : " Essaie une autre condition."); }
+    var ouvert = etat.cap==="masse";
+    $("etapeVerrou").hidden = ouvert; $("etapeCorps").hidden = !ouvert;
+  }
+  document.querySelectorAll("#capOpts .opt").forEach(function(b){
+    b.addEventListener("click", function(){ etat.cap = b.dataset.v; majCap(); sauver(); });
+  });
+
+  /* ── L'étape type, rangée par flèches ────────────────── */
+  function symbole(type){
+    var s = '<svg class="sym" viewBox="0 0 46 28" aria-hidden="true">';
+    if (type==="rect") s += '<rect x="3" y="4" width="40" height="20" rx="2" fill="#E3EEFA" stroke="#2E75B6" stroke-width="2"/>';
+    if (type==="losange") s += '<polygon points="23,2 44,14 23,26 2,14" fill="#FDECEA" stroke="#B42318" stroke-width="2"/>';
+    if (type==="para") s += '<polygon points="10,4 44,4 36,24 2,24" fill="#F1E9FB" stroke="#7A4FBF" stroke-width="2"/>';
+    if (type==="ovale") s += '<ellipse cx="23" cy="14" rx="20" ry="10" fill="#E8F5EC" stroke="#1E6B3B" stroke-width="2"/>';
+    return s + "</svg>";
+  }
+  var NOM_SYM = {rect:"traitement", losange:"test", para:"entrée / sortie", ovale:"début / fin"};
+  function rendreOrdre(marques){
+    var ol = $("ordre"); ol.innerHTML = "";
+    etat.ordre.forEach(function(id, i){
+      var b = BLOCS[id], li = document.createElement("li");
+      if (marques) li.className = marques[i] ? "bon" : "faux";
+      li.innerHTML = symbole(b.type) + '<span class="lib">' + b.txt + ' <span class="sr">(' + NOM_SYM[b.type] + ')</span></span>' +
+        '<button class="fl" type="button" data-i="'+i+'" data-d="-1" aria-label="Monter « '+b.txt+' »"'+(i===0?" disabled":"")+'>▲</button>' +
+        '<button class="fl" type="button" data-i="'+i+'" data-d="1" aria-label="Descendre « '+b.txt+' »"'+(i===etat.ordre.length-1?" disabled":"")+'>▼</button>';
+      ol.appendChild(li);
+    });
+    ol.querySelectorAll(".fl").forEach(function(f){
+      f.addEventListener("click", function(){
+        var i = +f.dataset.i, j = i + (+f.dataset.d);
+        var t = etat.ordre[i]; etat.ordre[i] = etat.ordre[j]; etat.ordre[j] = t;
+        if (etat.ordreOk){ etat.ordreOk = false; majVerrous(); }
+        $("ordreMsg").className = "retour-msg";
+        rendreOrdre(); sauver();
+        var cible = $("ordre").querySelectorAll(".fl")[j*2 + (+f.dataset.d>0 ? 1 : 0)];
+        if (cible && !cible.disabled) cible.focus();
+      });
+    });
+  }
+  /* Ordre accepté : tare et affichage dans un ordre quelconque, puis test, marche, attente, arrêt */
+  function verifOrdre(o){
+    var debut = o.slice(0,2).sort().join(",");
+    var bons = [debut==="aff,tare", debut==="aff,tare", o[2]==="test", o[3]==="on", o[4]==="att", o[5]==="off"];
+    return bons;
+  }
+  var INDICES_ORDRE = [
+    "Avant de tester la masse ajoutée, il faut mettre la balance à zéro et dire au cuisinier quoi ajouter.",
+    "Avant de tester la masse ajoutée, il faut mettre la balance à zéro et dire au cuisinier quoi ajouter.",
+    "Le test vient juste après : le robot attend que la masse ajoutée atteigne le seuil.",
+    "Quand le test répond « oui », le couteau peut se mettre à tourner.",
+    "Le couteau tourne pendant une durée : c'est la temporisation.",
+    "Une étape se termine en arrêtant le couteau, avant d'ajouter les ingrédients suivants."
+  ];
+  $("btnOrdre").addEventListener("click", function(){
+    var bons = verifOrdre(etat.ordre), m = $("ordreMsg");
+    etat.essaisOrdre++;
+    rendreOrdre(bons);
+    var premier = bons.indexOf(false);
+    if (premier < 0){
+      etat.ordreOk = true; m.className = "retour-msg ok";
+      m.textContent = "Bravo, ton étape type est juste ! Le robot pourra la répéter pour les 4 étapes de la recette.";
+    } else {
+      m.className = "retour-msg ko";
+      m.textContent = "Le bloc n° " + (premier+1) + " n'est pas à sa place." + (etat.essaisOrdre >= 2 ? " Indice : " + INDICES_ORDRE[premier] : "");
+    }
+    majVerrous(); sauver();
+  });
+
+  /* ── Les réglages ────────────────────────────────────── */
+  function rendreReg(){
+    var tb = $("tabReg").querySelector("tbody"); tb.innerHTML = "";
+    ETAPES.forEach(function(e, i){
+      var r = etat.reg[i], tr = document.createElement("tr");
+      var optV = '<option value="">—</option>' + [1,2,3,4,5,6,7,8,9,10].map(function(v){ return '<option value="'+v+'"'+(String(r.v)===String(v)?" selected":"")+'>vitesse '+v+'</option>'; }).join("");
+      var optD = '<option value="">—</option>' + DUREES.map(function(d){ return '<option value="'+d[0]+'"'+(String(r.d)===String(d[0])?" selected":"")+'>'+d[1]+'</option>'; }).join("");
+      tr.innerHTML = '<td><strong>'+(i+1)+'</strong><br><span style="font-size:13px;color:var(--gris)">'+e.ing+'</span></td>' +
+        '<td data-c="m"><input type="text" inputmode="decimal" autocomplete="off" data-i="'+i+'" data-k="m" value="'+r.m+'" aria-label="Seuil de masse étape '+(i+1)+', en grammes"> g</td>' +
+        '<td data-c="v"><select data-i="'+i+'" data-k="v" aria-label="Vitesse étape '+(i+1)+'">'+optV+'</select></td>' +
+        '<td data-c="d"><select data-i="'+i+'" data-k="d" aria-label="Durée étape '+(i+1)+'">'+optD+'</select></td>';
+      tb.appendChild(tr);
+    });
+    tb.querySelectorAll("input,select").forEach(function(el){
+      el.addEventListener("input", function(){
+        etat.reg[+el.dataset.i][el.dataset.k] = el.value;
+        var td = el.closest("td"); td.classList.remove("bon","faux"); var a = td.querySelector(".aide"); if (a) a.remove();
+        if (etat.regOk){ etat.regOk = false; majVerrous(); }
+        sauver();
+      });
+    });
+  }
+  function aide(i, k){
+    var e = ETAPES[i];
+    if (k==="m") return "Additionne les masses des ingrédients de l'étape " + (i+1) + ".";
+    if (k==="v") return "Relis la recette : « vitesse " + e.v + " ».";
+    return "Relis la recette : durée de l'étape " + (i+1) + ".";
+  }
+  $("btnReg").addEventListener("click", function(){
+    etat.essaisReg++;
+    var erreurs = 0;
+    $("tabReg").querySelectorAll("tbody tr").forEach(function(tr, i){
+      var r = etat.reg[i], e = ETAPES[i];
+      var ok = {m: parseFloat(String(r.m).replace(/\s|g$/gi, "").replace(",", "."))===e.m, v:+r.v===e.v, d:+r.d===e.d};
+      ["m","v","d"].forEach(function(k){
+        var td = tr.querySelector('td[data-c="'+k+'"]'); var a = td.querySelector(".aide"); if (a) a.remove();
+        td.classList.toggle("bon", ok[k]); td.classList.toggle("faux", !ok[k]);
+        if (!ok[k]){ erreurs++; if (etat.essaisReg >= 2){ var s = document.createElement("span"); s.className = "aide"; s.textContent = aide(i,k); td.appendChild(s); } }
+      });
+    });
+    var m = $("regMsg");
+    if (!erreurs){ etat.regOk = true; m.className = "retour-msg ok"; m.textContent = "Tous les réglages sont justes. Ton algorigramme est prêt : lance le robot !"; }
+    else { m.className = "retour-msg ko"; m.textContent = erreurs + " réglage" + (erreurs>1?"s":"") + " à revoir (cases en rouge)." + (etat.essaisReg < 2 ? " Vérifie de nouveau pour obtenir une aide." : ""); }
+    majVerrous(); sauver();
+  });
+
+  /* ── Algorigramme complet, dessiné à partir de l'étape type ── */
+  var NS = "http://www.w3.org/2000/svg";
+  var programme = [];   // [{op, e, g}] g = index du bloc dessiné
+  function couper(txt, n){
+    var mots = txt.split(" "), l = [], cur = "";
+    mots.forEach(function(m){ if ((cur+" "+m).trim().length > n && cur){ l.push(cur); cur = m; } else cur = (cur+" "+m).trim(); });
+    if (cur) l.push(cur); return l;
+  }
+  function texteBloc(op, e){
+    var E = ETAPES[e];
+    if (op==="tare") return "Mettre la balance à zéro";
+    if (op==="aff") return "Afficher « Ajoute " + E.ing + " »";
+    if (op==="test") return "Masse ajoutée ≥ " + E.m + " g ?";
+    if (op==="on") return "Couteau en marche, vitesse " + E.v;
+    if (op==="att") return "Attendre " + dureeTxt(E.d);
+    if (op==="off") return "Arrêter le couteau";
+    return op;
+  }
+  function dessinerAlgo(){
+    var svg = $("algoSvg"); svg.innerHTML = "";
+    var W = 340, cx = W/2, y = 14, blocs = [];
+    programme = [];
+    function ajoute(op, e, type, txt){
+      var lignes = couper(txt, type==="losange" ? 18 : 29);
+      var h = type==="losange" ? Math.max(70, 26 + lignes.length*17) : 20 + lignes.length*17;
+      blocs.push({op:op, e:e, type:type, lignes:lignes, y:y, h:h});
+      programme.push({op:op, e:e, g:blocs.length-1});
+      y += h + 30;
+    }
+    ajoute("debut", -1, "ovale", "Début");
+    ETAPES.forEach(function(E, e){ etat.ordre.forEach(function(op){ ajoute(op, e, BLOCS[op].type, texteBloc(op, e)); }); });
+    ajoute("fin", -1, "ovale", "Fin : pâte à cookies prête");
+    var H = y;
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    var defs = document.createElementNS(NS, "defs");
+    defs.innerHTML = '<marker id="fl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4A5562"/></marker>';
+    svg.appendChild(defs);
+    blocs.forEach(function(b, i){
+      if (i > 0){
+        var p = blocs[i-1], l = document.createElementNS(NS, "line");
+        l.setAttribute("x1", cx); l.setAttribute("y1", p.y + p.h); l.setAttribute("x2", cx); l.setAttribute("y2", b.y - 2);
+        l.setAttribute("stroke", "#4A5562"); l.setAttribute("stroke-width", "2"); l.setAttribute("marker-end", "url(#fl)");
+        l.setAttribute("class", "lien"); svg.appendChild(l);
+      }
+      var g = document.createElementNS(NS, "g"); g.setAttribute("class", "bloc"); g.setAttribute("id", "bl" + i);
+      var w = b.type==="losange" ? 230 : 250, x = cx - w/2, forme;
+      if (b.type==="ovale"){ forme = '<ellipse cx="'+cx+'" cy="'+(b.y+b.h/2)+'" rx="'+(w/2)+'" ry="'+(b.h/2)+'" fill="#E8F5EC" stroke="#1E6B3B" stroke-width="2.5"/>'; }
+      else if (b.type==="rect"){ forme = '<rect x="'+x+'" y="'+b.y+'" width="'+w+'" height="'+b.h+'" rx="4" fill="#E3EEFA" stroke="#2E75B6" stroke-width="2.5"/>'; }
+      else if (b.type==="para"){ forme = '<polygon points="'+(x+16)+','+b.y+' '+(x+w)+','+b.y+' '+(x+w-16)+','+(b.y+b.h)+' '+x+','+(b.y+b.h)+'" fill="#F1E9FB" stroke="#7A4FBF" stroke-width="2.5"/>'; }
+      else { forme = '<polygon points="'+cx+','+b.y+' '+(x+w)+','+(b.y+b.h/2)+' '+cx+','+(b.y+b.h)+' '+x+','+(b.y+b.h/2)+'" fill="#FDECEA" stroke="#B42318" stroke-width="2.5"/>'; }
+      var t0 = b.y + b.h/2 - (b.lignes.length-1)*8.5 + 5;
+      var txt = b.lignes.map(function(s, k){ return '<text x="'+cx+'" y="'+(t0 + k*17)+'" text-anchor="middle" font-size="13.5" font-family="Inter,Arial,sans-serif" fill="#1f2430">'+s.replace(/&/g,"&amp;").replace(/</g,"&lt;")+'</text>'; }).join("");
+      g.innerHTML = forme + txt;
+      if (b.type==="losange"){
+        /* Boucle « non » : on reteste tant que la masse est insuffisante */
+        var yl = b.y + b.h/2, xl = x, haut = b.y - 14;
+        g.innerHTML += '<path class="lien" d="M'+xl+','+yl+' H'+(xl-22)+' V'+haut+' H'+(cx-2)+'" fill="none" stroke="#4A5562" stroke-width="2" marker-end="url(#fl)"/>' +
+          '<text x="'+(xl-6)+'" y="'+(yl-6)+'" text-anchor="end" font-size="12" font-weight="700" fill="#B42318">non</text>' +
+          '<text x="'+(cx+8)+'" y="'+(b.y+b.h+14)+'" font-size="12" font-weight="700" fill="#1E6B3B">oui</text>';
+      }
+      svg.appendChild(g);
+    });
+  }
+
+  /* ── Le robot : dessin animé ─────────────────────────── */
+  var vitesse = 0, angle = 0.7, tPrec = 0, vueDessus = false;  /* angle de départ : les deux lames sont visibles */
+  var reduit = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function boucleLames(t){
+    var dt = Math.max(0, Math.min(0.1, (t - (tPrec || t)) / 1000)); tPrec = t;
+    angle += vitesse * 2.2 * Math.PI * dt;          /* vitesse 1 ≈ 1 tour/s affiché */
+    var c = Math.cos(angle), s = Math.sin(angle);
+    /* Axe vertical : une lame horizontale vue de face paraît plus ou moins longue */
+    var flou = vitesse >= 3;
+    $("lameBas").setAttribute("transform", "scale(" + (reduit && vitesse ? 0.9 : c).toFixed(3) + ",1)");
+    $("lameHaut").setAttribute("transform", "scale(" + (reduit && vitesse ? 0.9 : s).toFixed(3) + ",1)");
+    $("lameBas").setAttribute("opacity", flou ? 0.45 : 1);
+    $("lameHaut").setAttribute("opacity", flou ? 0.45 : 1);
+    $("flou").setAttribute("opacity", vitesse ? (flou ? 0.5 : 0.18) : 0);
+    $("lamesDessus").setAttribute("transform", "rotate(" + (angle * 180 / Math.PI % 360).toFixed(1) + ")");
+    requestAnimationFrame(boucleLames);
+  }
+  $("btnVue").addEventListener("click", function(){
+    vueDessus = !vueDessus; this.setAttribute("aria-pressed", vueDessus); $("vueDessus").setAttribute("opacity", vueDessus ? 1 : 0);
+  });
+
+  var couches = [];  // {c, m}
+  var masseBol = 0, masseTare = 0;
+  function dessinerBol(){
+    var g = $("couches"), total = 0, y = 262, html = "";
+    var echelle = 0.17;  /* px par gramme : 668 g remplissent ≈ 80 % du bol */
+    couches.forEach(function(k){ var h = k.m * echelle; y -= h; html += '<rect x="100" y="'+y.toFixed(1)+'" width="160" height="'+(h+0.6).toFixed(1)+'" fill="'+k.c+'"/>'; total += k.m; });
+    g.innerHTML = html;
+    $("ecran1").textContent = Math.round(masseBol - masseTare) + " g";
+  }
+  function melanger(){
+    if (!couches.length) return;
+    var r=0,v=0,b=0,m=0;
+    couches.forEach(function(k){ var n = parseInt(k.c.slice(1),16); r += (n>>16)*k.m; v += (n>>8&255)*k.m; b += (n&255)*k.m; m += k.m; });
+    var hex = "#" + [r,v,b].map(function(x){ return ("0"+Math.round(x/m).toString(16)).slice(-2); }).join("");
+    couches = [{c:hex, m:m}];
+  }
+  function ecran2(t){ $("ecran2").textContent = t; }
+  function journal(t){ var d = document.createElement("div"); d.textContent = t; var j = $("journal"); j.appendChild(d); j.scrollTop = j.scrollHeight; }
+
+  /* ── Exécution du programme ──────────────────────────── */
+  var pc = 0, enCours = false, pasAPas = false, attentePas = null, jeton = 0;
+  var sousEtat = null;  // progression à l'intérieur d'un test (versements)
+  function dormir(ms, j){ return new Promise(function(res){ setTimeout(function(){ res(j === jeton); }, ms); }); }
+  function attendreClic(j){ return new Promise(function(res){ attentePas = function(){ attentePas = null; res(j === jeton); }; }); }
+  function surligner(i){
+    document.querySelectorAll("#algoSvg .bloc").forEach(function(b){ b.classList.remove("actif"); });
+    if (i == null) return;
+    var g = $("bl" + i); if (!g) return; g.classList.add("actif");
+    var box = $("algoBox"), svg = $("algoSvg"), k = svg.clientWidth / svg.viewBox.baseVal.width;
+    var bb = g.getBBox(), cible = bb.y * k - box.clientHeight/2 + bb.height*k/2;
+    box.scrollTop = Math.max(0, cible);  /* défilement immédiat : un défilement animé ne progresse pas si l'onglet est en arrière-plan */
+  }
+  function reinit(){
+    jeton++; enCours = false; pc = 0; vitesse = 0; couches = []; masseBol = 0; masseTare = 0; sousEtat = null;
+    if (attentePas) attentePas();
+    dessinerBol(); ecran2("Prêt"); surligner(null); $("journal").innerHTML = "";
+    $("btnLancer").disabled = false; $("btnPas").disabled = false;
+  }
+  async function executer(ins, j){
+    var E = ETAPES[ins.e];
+    surligner(ins.g);
+    if (ins.op==="debut"){ journal("Début du programme"); ecran2("Programme lancé"); return true; }
+    if (ins.op==="fin"){ vitesse = 0; ecran2("Pâte prête !"); journal("Fin : la pâte à cookies est prête."); return true; }
+    if (ins.op==="tare"){ masseTare = masseBol; dessinerBol(); journal("Étape " + (ins.e+1) + " : balance mise à zéro (0 g)."); return true; }
+    if (ins.op==="aff"){ ecran2("Ajoute " + E.ing.split(" + ")[0] + "…"); journal("Écran : « Ajoute " + E.ing + " »."); return true; }
+    if (ins.op==="test"){
+      /* Le cuisinier verse en plusieurs fois : tant que la masse est insuffisante, le test répond « non » */
+      if (!sousEtat) sousEtat = {k:0, versé:0};
+      var parts = E.couleurs, total = E.m, nb = 3;
+      while (sousEtat.versé < total){
+        var ajout = Math.min(total - sousEtat.versé, Math.ceil(total / nb));
+        var restant = ajout;
+        while (restant > 0 && sousEtat.k < parts.length){
+          var p = parts[sousEtat.k], deja = sousEtat.dejaK || 0, prend = Math.min(restant, p[1] - deja);
+          couches.push({c:p[0], m:prend}); masseBol += prend; restant -= prend; deja += prend;
+          if (deja >= p[1]){ sousEtat.k++; sousEtat.dejaK = 0; } else sousEtat.dejaK = deja;
+        }
+        sousEtat.versé += ajout; dessinerBol();
+        var ok = (masseBol - masseTare) >= E.m;
+        journal("Test : masse ajoutée = " + Math.round(masseBol - masseTare) + " g ≥ " + E.m + " g ? → " + (ok ? "oui" : "non"));
+        ecran2(ok ? "Masse atteinte" : "Encore un peu…");
+        if (!ok){
+          if (pasAPas){ if (!(await attendreClic(j))) return false; }
+          else if (!(await dormir(650, j))) return false;
+        }
+      }
+      sousEtat = null; return true;
+    }
+    if (ins.op==="on"){ vitesse = E.v; ecran2("Vitesse " + E.v); journal("Couteau en marche, vitesse " + E.v + "."); return true; }
+    if (ins.op==="att"){
+      /* Temporisation accélérée : 1 minute de recette ≈ 2 secondes à l'écran */
+      var ms = Math.max(1200, E.d * 1000 / 30), t0 = performance.now();
+      journal("Attendre " + dureeTxt(E.d) + " (accéléré).");
+      while (true){
+        var ecoule = Math.max(0, performance.now() - t0), reste = Math.max(0, E.d - Math.round(E.d * ecoule / ms));
+        ecran2("⏱ " + Math.floor(reste/60) + ":" + ("0" + (reste%60)).slice(-2) + " · vitesse " + E.v);
+        if (ecoule >= ms) break;
+        if (!(await dormir(100, j))) return false;
+      }
+      melanger(); dessinerBol(); return true;
+    }
+    if (ins.op==="off"){ vitesse = 0; ecran2("Couteau arrêté"); journal("Couteau arrêté."); return true; }
+    return true;
+  }
+  async function lancer(modePas){
+    if (enCours && pasAPas && modePas){ if (attentePas) attentePas(); return; }
+    if (enCours) return;
+    if (pc >= programme.length) reinit();
+    enCours = true; pasAPas = modePas; var j = jeton;
+    $("btnLancer").disabled = modePas;
+    while (pc < programme.length){
+      var ok = await executer(programme[pc], j);
+      if (!ok || j !== jeton) return;
+      pc++;
+      if (pasAPas){ if (pc < programme.length && !(await attendreClic(j))) return; }
+      else if (!(await dormir(500, j))) return;
+    }
+    enCours = false; surligner(null); $("btnLancer").disabled = false; $("btnPas").disabled = true;
+    if (!etat.fini){ etat.fini = true; sauver(); }
+  }
+  $("btnLancer").addEventListener("click", function(){ if (enCours && pasAPas){ pasAPas = false; if (attentePas) attentePas(); this.disabled = true; return; } lancer(false); });
+  $("btnPas").addEventListener("click", function(){ lancer(true); });
+  $("btnStop").addEventListener("click", reinit);
+
+  /* ── Verrous ─────────────────────────────────────────── */
+  function majVerrous(){
+    var a = etat.cap==="masse", b = a && etat.ordreOk, c = b && etat.regOk;
+    $("etapeVerrou").hidden = a;  $("etapeCorps").hidden = !a;
+    $("regVerrou").hidden = b;    $("regCorps").hidden = !b;
+    $("robotVerrou").hidden = c;  $("robotCorps").hidden = !c;
+    if (c){ dessinerAlgo(); reinit(); }
+  }
+
+  /* ── Je conclus ──────────────────────────────────────── */
+  $("conclTxt").addEventListener("input", function(){ etat.concl = this.value; sauver(); });
+  $("btnConcl").addEventListener("click", function(){
+    var m = $("conclMsg"), t = norm(etat.concl);
+    var mots = ["balance","pese","peser","masse","capteur"].filter(function(k){ return t.indexOf(k) >= 0; });
+    m.className = "retour-msg info";
+    m.innerHTML = (t.length < 15 ? "Écris d'abord ta conclusion en une ou deux phrases. " : (mots.length ? "Ta conclusion parle bien de « " + mots[0] + " ». " : "Pense à parler du capteur. ")) +
+      "<br><strong>Réponse attendue :</strong> le robot <strong>pèse</strong> ce que l'on ajoute : sa <strong>balance</strong> est le capteur. Il ne peut tester qu'une grandeur mesurée (« masse ajoutée ≥ 225 g ? »). Les durées de mélange sont des <strong>temporisations</strong> programmées." +
+      (etat.hyp==="balance" ? " Ton hypothèse était juste." : etat.hyp ? " Ton hypothèse n'était pas celle-ci : c'est normal, l'investigation sert à la vérifier." : "");
+  });
+
+  /* ── Recommencer, imprimer, état adressable ──────────── */
+  $("btnRecommencer").addEventListener("click", function(){
+    if (!confirm("Effacer ce que tu as fait sur cette page ?")) return;
+    try{ localStorage.removeItem(CLE); }catch(e){}
+    location.hash = ""; location.reload();
+  });
+  $("btnImprimer").addEventListener("click", function(){ majHyp(); window.print(); });
+
+  /* ?corrige : remplit tout (projection en classe) */
+  function corrige(){
+    etat.cap = "masse"; etat.ordre = ["tare","aff","test","on","att","off"]; etat.ordreOk = true;
+    etat.reg = ETAPES.map(function(e){ return {m:String(e.m), v:String(e.v), d:String(e.d)}; }); etat.regOk = true;
+  }
+
+  charger();
+  if (/[?&]corrige\b/.test(location.search)) corrige();
+  majHyp(); majCap(); rendreOrdre(); rendreReg(); $("conclTxt").value = etat.concl; majVerrous();
+  requestAnimationFrame(boucleLames);
+  /* ?corrige&auto : la recette démarre seule (projection en classe) */
+  if (/[?&]auto\b/.test(location.search) && etat.regOk && etat.ordreOk){ $("robot").scrollIntoView(); lancer(false); }
+  else if (location.hash){ var c = document.querySelector(location.hash); if (c) c.scrollIntoView(); }
+})();
+</script>
+
+<!-- Aménagements dys : scripts partagés du site Technologie -->
+<script>window.CONFORT_LECTURE = { hote:".pbar-in", racine:"main", fonts:"https://blanchardromain-cyber.github.io/technologie-stpierre/pp4g/fonts/" };</script>
+<script src="https://blanchardromain-cyber.github.io/technologie-stpierre/assets/js/confort-lecture.js" defer></script>
+<script>window.LECTURE_IMMERSIVE = { racine:"main", hote:".pbar-in", sectionsFermees:"", classeFermeture:"" };</script>
+<script src="https://blanchardromain-cyber.github.io/technologie-stpierre/assets/js/lecture-immersive.js" defer></script>
+</body>
+</html>
