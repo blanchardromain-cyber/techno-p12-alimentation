@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>P12 — Exercice 1, algorigramme (images des fiches)</title>
+<style>
+  body{margin:0;background:#fff;font-family:Arial,sans-serif}
+  svg{display:block}
+  .cache{display:none}
+</style>
+</head>
+<body>
+<!-- Gabarit élève : 2 tests, 4 actions, retour au début -->
+<svg id="eleve" width="620" height="760" viewBox="0 0 620 760" xmlns="http://www.w3.org/2000/svg" font-family="Arial,sans-serif">
+  <defs><marker id="f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#333"/></marker></defs>
+  <ellipse cx="200" cy="34" rx="60" ry="22" fill="#5DBB63" stroke="#2E7D32" stroke-width="1.5"/>
+  <text x="200" y="40" text-anchor="middle" font-size="17" fill="#fff">Début</text>
+  <line x1="200" y1="56" x2="200" y2="92" stroke="#333" stroke-width="1.5" marker-end="url(#f)"/>
+  <polygon points="200,94 310,150 200,206 90,150" fill="#FFF2CC" stroke="#C9A227" stroke-width="1.5"/>
+  <text x="200" y="146" text-anchor="middle" font-size="13" fill="#555">..............................</text>
+  <text x="200" y="166" text-anchor="middle" font-size="13" fill="#555">..............................</text>
+  <path d="M310,150 H350 V74 H202" fill="none" stroke="#333" stroke-width="1.5" marker-end="url(#f)"/>
+  <text x="318" y="140" font-size="13" fill="#333">Non</text>
+  <text x="208" y="226" font-size="13" fill="#333">Oui</text>
+  <line x1="200" y1="206" x2="200" y2="244" stroke="#333" stroke-width="1.5" marker-end="url(#f)"/>
+  <polygon points="200,246 310,302 200,358 90,302" fill="#FFF2CC" stroke="#C9A227" stroke-width="1.5"/>
+  <text x="200" y="298" text-anchor="middle" font-size="13" fill="#555">..............................</text>
+  <text x="200" y="318" text-anchor="middle" font-size="13" fill="#555">..............................</text>
+  <path d="M310,302 H370 V60 H246" fill="none" stroke="#333" stroke-width="1.5" marker-end="url(#f)"/>
+  <text x="318" y="292" font-size="13" fill="#333">Oui</text>
+  <text x="208" y="378" font-size="13" fill="#333">Non</text>
+  <line x1="200" y1="358" x2="200" y2="392" stroke="#333" stroke-width="1.5" marker-end="url(#f)"/>
+  <g fill="#DCE8F7" stroke="#6C8EBF" stroke-width="1.5">
+    <rect x="80" y="394" width="240" height="44"/><rect x="80" y="474" width="240" height="44"/>
+    <rect x="80" y="554" width="240" height="44"/><rect x="80" y="634" width="240" height="44"/>
+  </g>
+  <g font-size="13" fill="#555" text-anchor="middle">
+    <text x="200" y="421">.........................................................</text><text x="200" y="501">.........................................................</text>
+    <text x="200" y="581">.........................................................</text><text x="200" y="661">.........................................................</text>
+  </g>
+  <g stroke="#333" stroke-width="1.5"><line x1="200" y1="438" x2="200" y2="472" marker-end="url(#f)"/><line x1="200" y1="518" x2="200" y2="552" marker-end="url(#f)"/><line x1="200" y1="598" x2="200" y2="632" marker-end="url(#f)"/></g>
+  <path d="M200,678 V712 H392 V46 H258" fill="none" stroke="#333" stroke-width="1.5" marker-end="url(#f)"/>
+  <text x="300" y="732" text-anchor="middle" font-size="13" fill="#333">retour au début</text>
+  <!-- Étiquettes à replacer -->
+  <rect x="420" y="250" width="190" height="230" rx="8" fill="#F5F5F5" stroke="#999" stroke-dasharray="5 4"/>
+  <text x="515" y="276" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">Étiquettes à replacer</text>
+  <g font-size="13" fill="#333">
+    <text x="432" y="306">• Distribuer la dose</text><text x="432" y="334">• Ration du jour atteinte ?</text>
+    <text x="432" y="362">• Enregistrer dans</text><text x="444" y="378">l'application</text>
+    <text x="432" y="406">• Ouvrir le clapet</text><text x="432" y="434">• Chat reconnu ?</text>
+    <text x="432" y="462">• Fermer le clapet</text>
+  </g>
+</svg>
+
+<!-- Corrigé -->
+<svg id="corrige" class="cache" width="560" height="880" viewBox="0 0 560 880" xmlns="http://www.w3.org/2000/svg" font-family="Arial,sans-serif">
+  <defs><marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#444"/></marker></defs>
+  <ellipse cx="280" cy="34" rx="64" ry="22" fill="#1E6B3B"/><text x="280" y="40" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">DÉBUT</text>
+  <line x1="280" y1="56" x2="280" y2="98" stroke="#444" stroke-width="2" marker-end="url(#g)"/>
+  <polygon points="280,100 410,168 280,236 150,168" fill="#FCE4EC" stroke="#C2185B" stroke-width="2.5"/>
+  <text x="280" y="164" text-anchor="middle" font-size="13" font-weight="700" fill="#C2185B">Chat</text><text x="280" y="182" text-anchor="middle" font-size="13" font-weight="700" fill="#C2185B">reconnu ?</text>
+  <line x1="150" y1="168" x2="60" y2="168" stroke="#444" stroke-width="2"/><line x1="60" y1="168" x2="60" y2="34" stroke="#444" stroke-width="2"/><line x1="60" y1="34" x2="214" y2="34" stroke="#444" stroke-width="2" marker-end="url(#g)"/>
+  <text x="105" y="160" font-size="11" font-weight="700" fill="#C62828">Non</text>
+  <text x="290" y="256" font-size="11" font-weight="700" fill="#2E7D32">Oui</text>
+  <line x1="280" y1="236" x2="280" y2="274" stroke="#444" stroke-width="2" marker-end="url(#g)"/>
+  <polygon points="280,276 410,344 280,412 150,344" fill="#FCE4EC" stroke="#C2185B" stroke-width="2.5"/>
+  <text x="280" y="340" text-anchor="middle" font-size="13" font-weight="700" fill="#C2185B">Ration du jour</text><text x="280" y="358" text-anchor="middle" font-size="13" font-weight="700" fill="#C2185B">atteinte ?</text>
+  <line x1="150" y1="344" x2="60" y2="344" stroke="#444" stroke-width="2"/><line x1="60" y1="344" x2="60" y2="168" stroke="#444" stroke-width="2"/>
+  <text x="105" y="336" font-size="11" font-weight="700" fill="#2E7D32">Oui</text>
+  <text x="290" y="432" font-size="11" font-weight="700" fill="#C62828">Non</text>
+  <line x1="280" y1="412" x2="280" y2="450" stroke="#444" stroke-width="2" marker-end="url(#g)"/>
+  <g fill="#E3F2FD" stroke="#3949AB" stroke-width="2.5"><rect x="160" y="452" width="240" height="58" rx="8"/><rect x="160" y="554" width="240" height="58" rx="8"/><rect x="160" y="656" width="240" height="58" rx="8"/><rect x="160" y="758" width="240" height="58" rx="8"/></g>
+  <g text-anchor="middle" font-size="11" font-weight="700" fill="#3949AB"><text x="280" y="478">ACTION 1</text><text x="280" y="580">ACTION 2</text><text x="280" y="682">ACTION 3</text><text x="280" y="784">ACTION 4</text></g>
+  <g text-anchor="middle" font-size="13" font-weight="700" fill="#1A237E"><text x="280" y="498">Ouvrir le clapet</text><text x="280" y="600">Distribuer la dose</text><text x="280" y="702">Fermer le clapet</text><text x="280" y="804">Enregistrer dans l'application</text></g>
+  <g stroke="#444" stroke-width="2"><line x1="280" y1="510" x2="280" y2="552" marker-end="url(#g)"/><line x1="280" y1="612" x2="280" y2="654" marker-end="url(#g)"/><line x1="280" y1="714" x2="280" y2="756" marker-end="url(#g)"/></g>
+  <line x1="280" y1="816" x2="280" y2="846" stroke="#444" stroke-width="2"/><line x1="280" y1="846" x2="500" y2="846" stroke="#444" stroke-width="2"/><line x1="500" y1="846" x2="500" y2="34" stroke="#444" stroke-width="2"/><line x1="500" y1="34" x2="346" y2="34" stroke="#444" stroke-width="2" marker-end="url(#g)"/>
+  <text x="390" y="864" text-anchor="middle" font-size="11" font-weight="700" fill="#444">retour au début</text>
+</svg>
+<script>
+  if (/corrige/.test(location.search)){ document.getElementById("eleve").classList.add("cache"); document.getElementById("corrige").classList.remove("cache"); }
+</script>
+</body>
+</html>
