@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P12 — Du capteur d'humidité au microcontrôleur</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--navy:#1F3864;--blue:#2E75B6;--or:#C8611A;--vt:#1E6B3B;--rouge:#B42318;--fond:#f4f7fb;--bord:#dde5ee;--txt:#1f2430;--gris:#566070}
+  *{box-sizing:border-box}
+  body{font-family:'Inter',Arial,sans-serif;margin:0;background:var(--fond);color:var(--txt);line-height:1.5;font-size:16px}
+  .pbar{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--bord)}
+  .pbar-in{max-width:980px;margin:0 auto;padding:8px 16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .pbar-in a.retour{color:var(--navy);font-weight:700;text-decoration:none;font-size:14px;margin-right:auto}
+  main{max-width:980px;margin:0 auto;padding:18px 16px 60px}
+  header.band{background:var(--navy);color:#fff;border-radius:14px;padding:20px 22px}
+  header.band .k{font-size:12px;letter-spacing:.04em;color:#bcd2ee;font-weight:600}
+  header.band h1{margin:6px 0 0;font-size:24px;line-height:1.25}
+  header.band p{margin:8px 0 0;color:#dce8f8;font-size:15px}
+  .comp{margin-top:10px;font-size:13px;color:#dce8f8}
+  section.etape{background:#fff;border:1px solid var(--bord);border-radius:14px;padding:18px 20px;margin-top:16px;border-left:6px solid var(--c1,var(--blue))}
+  section.etape > h2{margin:0 0 10px;font-size:19px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .badge{display:inline-block;border-radius:999px;padding:3px 12px;font-size:12px;font-weight:800;color:#fff;background:var(--c1,var(--blue));letter-spacing:.03em;text-transform:uppercase}
+  #question{--c1:#2E75B6} #hypothese{--c1:#7A4FBF} #chaine,#programme{--c1:#C8611A} #conclure{--c1:#1E6B3B} #retenir{--c1:#B42318}
+  .consigne{background:#F5F8FC;border-radius:10px;padding:10px 14px;margin:8px 0 12px}
+  .opts{display:grid;gap:8px}
+  .opt{display:block;width:100%;text-align:left;font:inherit;background:#fff;border:2px solid var(--bord);border-radius:10px;padding:10px 12px;cursor:pointer;color:var(--txt)}
+  .opt[aria-pressed="true"]{border-color:var(--navy);background:#EEF3FA}
+  .curseur{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:17px}
+  input[type=range]{flex:1;min-width:200px;accent-color:var(--blue);height:32px}
+  .chaine{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:14px;font-variant-numeric:tabular-nums}
+  .bloc{border-radius:12px;padding:10px;text-align:center;border:2px solid var(--cc);background:#fff;position:relative}
+  .bloc .t{font-size:13px;font-weight:700;color:var(--cc)}
+  .bloc .v{font-size:22px;font-weight:800;margin-top:4px}
+  .bloc .s{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:1px 8px;margin-top:4px;background:var(--cc);color:#fff}
+  .bloc:not(:last-child)::after{content:"→";position:absolute;right:-12px;top:42%;font-weight:800;color:var(--gris)}
+  .bascules{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:15px}
+  .bascules label{display:flex;gap:6px;align-items:center;cursor:pointer}
+  .bascules input{width:20px;height:20px}
+  .tab-wrap{overflow-x:auto}
+  table.can{border-collapse:collapse;font-size:15px;font-variant-numeric:tabular-nums;margin-top:10px;min-width:420px}
+  table.can th{background:var(--navy);color:#fff;padding:6px 10px}
+  table.can td{border:1px solid var(--bord);padding:6px 10px;text-align:center}
+  table.can tr.ici td{background:#FFF2CC;font-weight:700}
+  /* Programme par blocs */
+  .prog{font-size:15px;line-height:1.4;max-width:560px}
+  .prog .bk{border-radius:6px;padding:6px 10px;margin:4px 0;color:#fff;font-weight:600}
+  .prog .ev{background:#C88330;border-radius:14px 14px 6px 6px}
+  .prog .ct{background:#CF8B17}
+  .prog .ac{background:#4C97FF}
+  .prog .in{margin:4px 0 4px 14px;padding-left:4px;border-left:3px solid rgba(255,255,255,.55)}
+  .prog .cd{display:inline-block;background:#59C059;border-radius:12px;padding:1px 8px;margin:1px 2px}
+  .prog select,.prog input{font:inherit;font-size:15px;border-radius:8px;border:2px solid #fff;padding:2px 6px;background:#fff;color:var(--txt);max-width:100%}
+  .prog input{width:72px}
+  .prog .bon{border-color:#1E6B3B;box-shadow:0 0 0 2px #B8E0C4}
+  .prog .faux{border-color:#B42318;box-shadow:0 0 0 2px #F5C2BC}
+  .btn{font:inherit;font-size:15px;font-weight:700;border:none;border-radius:10px;padding:10px 18px;cursor:pointer;background:var(--navy);color:#fff}
+  .btn.sec{background:#fff;color:var(--navy);border:2px solid var(--navy)}
+  .btn:focus-visible,.opt:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #F2B705;outline-offset:2px}
+  .rang{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+  .msg{margin-top:10px;border-radius:10px;padding:10px 14px;display:none}
+  .msg.ok{display:block;background:#E8F5EC;border-left:5px solid var(--vt)} .msg.ko{display:block;background:#FDECEA;border-left:5px solid var(--rouge)} .msg.info{display:block;background:#FFF6E5;border-left:5px solid var(--or)}
+  .msg ul{margin:6px 0 0;padding-left:20px}
+  #graph{display:block;width:100%;height:auto;background:#fff;border:1px solid var(--bord);border-radius:12px;margin-top:10px}
+  textarea{font:inherit;font-size:16px;width:100%;border:2px solid var(--bord);border-radius:8px;padding:8px 10px;resize:vertical}
+  .retenir{background:#FFF4F2;border-radius:10px;padding:12px 16px}
+  .footer{color:var(--gris);font-size:12px;text-align:center;margin-top:28px}
+  @media (max-width:760px){ .chaine{grid-template-columns:1fr 1fr} .bloc:not(:last-child)::after{display:none} header.band h1{font-size:21px} section.etape{padding:14px} }
+  @media (min-width:1400px){ body{font-size:18px} main,.pbar-in{max-width:1200px} .prog{font-size:17px;max-width:680px} }
+  @media print{ .pbar,.btn,.rang{display:none!important} body{background:#fff} section.etape{break-inside:avoid;border:1px solid #999} }
+</style>
+</head>
+<body>
+<div class="pbar"><div class="pbar-in">
+  <a class="retour" href="./index.html">&larr; Séquence P12</a>
+  <button class="btn sec" type="button" id="btnRecommencer">Recommencer</button>
+  <button class="btn sec" type="button" onclick="window.print()">Imprimer</button>
+</div></div>
+<main>
+  <header class="band">
+    <div class="k">TECHNOLOGIE · 4ᵉ · Séquence P12 · Exercice n°2</div>
+    <h1>Du capteur d'humidité au microcontrôleur</h1>
+    <p>Le bac à sable connecté conserve les légumes dans du sable humide.</p>
+    <div class="comp"><strong>Compétences :</strong> Décrire et caractériser l’organisation interne d’un objet ou d’un système technique et ses échanges avec son environnement (énergies, données) · Comprendre et modifier un programme associé à une fonctionnalité d’un objet ou d’un système technique · <strong>CPS travaillée :</strong> Argumenter · non noté</div>
+  </header>
+
+  <section class="etape" id="question">
+    <h2><span class="badge">1 · La question</span></h2>
+    <p style="margin:0">Le microcontrôleur ne « sent » pas le sable. Comment sait-il que le sable est trop sec et qu'il faut arroser ?</p>
+  </section>
+
+  <section class="etape" id="hypothese">
+    <h2><span class="badge">2 · Mon hypothèse</span></h2>
+    <div class="opts" id="hypOpts" role="group" aria-label="Hypothèses">
+      <button class="opt" type="button" data-v="nombre" aria-pressed="false">Le capteur lui envoie un nombre qu'il compare à un seuil.</button>
+      <button class="opt" type="button" data-v="oui" aria-pressed="false">Le capteur lui dit simplement « sec » ou « humide ».</button>
+      <button class="opt" type="button" data-v="heure" aria-pressed="false">Il arrose à heure fixe, sans mesurer.</button>
+    </div>
+  </section>
+
+  <section class="etape" id="chaine">
+    <h2><span class="badge">3 · J'investigue</span> La chaîne d'information</h2>
+    <p class="consigne" data-consigne>Fais glisser le curseur pour changer l'humidité du sable. Observe chaque grandeur, de gauche à droite.</p>
+    <div class="curseur">
+      <label for="hum"><strong>Humidité du sable :</strong></label>
+      <input type="range" id="hum" min="30" max="50" step="1" value="45" aria-describedby="humVal">
+      <span id="humVal" style="font-weight:800;min-width:60px">45 %</span>
+    </div>
+    <div class="chaine" aria-live="polite">
+      <div class="bloc" style="--cc:#2E75B6"><div class="t">Capteur : résistance</div><div class="v" id="vR"></div><span class="s">analogique</span></div>
+      <div class="bloc" style="--cc:#2E75B6"><div class="t">Tension</div><div class="v" id="vU"></div><span class="s">analogique</span></div>
+      <div class="bloc" style="--cc:#7A4FBF"><div class="t">CAN (10 bits, 5 V)</div><div class="v" id="vN"></div><span class="s">numérique</span></div>
+      <div class="bloc" style="--cc:#C8611A"><div class="t">Microcontrôleur</div><div class="v" id="vT" style="font-size:16px"></div><span class="s">traitement</span></div>
+      <div class="bloc" style="--cc:#1E6B3B"><div class="t">Pompe</div><div class="v" id="vP"></div><span class="s">logique</span></div>
+    </div>
+    <div class="bascules">
+      <label><input type="checkbox" id="reserve" checked> Réserve d'eau suffisante (capteur à flotteur)</label>
+      <label><input type="checkbox" id="legumes" checked> Légumes présents (information de l'application)</label>
+    </div>
+    <div class="tab-wrap"><table class="can" aria-label="Table de conversion du document 3">
+      <thead><tr><th>Humidité (% RH)</th><th>Résistance (kΩ)</th><th>Tension (V)</th><th>Valeur CAN</th></tr></thead>
+      <tbody><tr data-h="30"><td>30</td><td>3 300</td><td>0,07</td><td>14</td></tr><tr data-h="40"><td>40</td><td>840</td><td>0,26</td><td>54</td></tr><tr data-h="50"><td>50</td><td>123</td><td>1,38</td><td>283</td></tr></tbody>
+    </table></div>
+    <p style="font-size:14px;color:var(--gris);margin:8px 0 0">Le CAN partage 5 V en 1 024 valeurs (de 0 à 1 023) : valeur CAN ≈ tension × 1 024 ÷ 5. Entre deux lignes du tableau, les valeurs sont estimées.</p>
+  </section>
+
+  <section class="etape" id="programme">
+    <h2><span class="badge">3 · J'investigue</span> Je complète le programme par blocs</h2>
+    <p class="consigne" data-consigne>Complète les cases du programme pour respecter le cahier des charges : humidité entre 40 % et 50 %, arrosage seulement s'il y a des légumes et de l'eau dans la réserve. Puis teste-le.</p>
+    <div class="prog" id="prog">
+      <div class="bk ev">quand le bac démarre</div>
+      <div class="bk ct"><select id="p-boucle" aria-label="Type de boucle"><option value="">— choisir —</option><option value="indef">répéter indéfiniment</option><option value="jusqua">répéter jusqu'à réserve d'eau suffisante</option><option value="dix">répéter 10 fois</option></select>
+        <div class="in">
+          <div class="bk ct">si <span class="cd">réserve d'eau suffisante</span> alors
+            <div class="in">
+              <div class="bk ac">éteindre le voyant rouge</div>
+              <div class="bk ct">si <span class="cd">valeur CAN humidité &lt; <input id="p-bas" type="text" inputmode="numeric" aria-label="Seuil bas de la valeur CAN" autocomplete="off"></span> et <span class="cd"><select id="p-et" aria-label="Deuxième condition"><option value="">— choisir —</option><option value="legumes">légumes présents</option><option value="voyant">voyant rouge allumé</option><option value="pompe">pompe à OFF</option></select></span> alors
+                <div class="in"><div class="bk ac">pompe à <select id="p-on" aria-label="État de la pompe si le sable est sec"><option value="">—</option><option>ON</option><option>OFF</option></select></div></div>
+              </div>
+              <div class="bk ct">si <span class="cd">valeur CAN humidité &gt; <input id="p-haut" type="text" inputmode="numeric" aria-label="Seuil haut de la valeur CAN" autocomplete="off"></span> alors
+                <div class="in"><div class="bk ac">pompe à <select id="p-off" aria-label="État de la pompe si le sable est assez humide"><option value="">—</option><option>ON</option><option>OFF</option></select></div></div>
+              </div>
+            </div>
+            sinon
+            <div class="in"><div class="bk ac">allumer le voyant rouge</div><div class="bk ac">pompe à OFF</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="rang">
+      <button class="btn" type="button" id="btnTester">▶ Tester mon programme (1 semaine accélérée)</button>
+      <button class="btn sec" type="button" id="btnVerif">Vérifier les cases</button>
+    </div>
+    <svg id="graph" viewBox="0 0 600 220" role="img" aria-label="Évolution de l'humidité du sable pendant le test"></svg>
+    <div class="msg" id="msgProg" role="status" aria-live="polite"></div>
+  </section>
+
+  <section class="etape" id="conclure">
+    <h2><span class="badge">4 · Je conclus</span></h2>
+    <p class="consigne" data-consigne>Réponds à la question de départ avec les mots : analogique, CAN, numérique, seuil.</p>
+    <textarea id="concl" rows="3" placeholder="Le capteur… le CAN… le microcontrôleur…"></textarea>
+    <div class="rang"><button class="btn" type="button" id="btnConcl">Comparer avec la réponse attendue</button></div>
+    <div class="msg" id="msgConcl" role="status" aria-live="polite"></div>
+  </section>
+
+  <section class="etape" id="retenir">
+    <h2><span class="badge">5 · Je retiens</span></h2>
+    <div class="retenir">
+      <p style="margin:0 0 6px"><strong>Chaîne d'information :</strong> capteur → microcontrôleur → actionneur.</p>
+      <ul style="margin:0;padding-left:20px">
+        <li><strong>Signal analogique</strong> : il varie de façon continue (la tension du capteur d'humidité).</li>
+        <li><strong>Signal logique</strong> : il ne prend que deux états, 0 ou 1 (réserve suffisante ou non, pompe ON ou OFF).</li>
+        <li><strong>CAN</strong> (convertisseur analogique numérique) : il transforme la tension en un nombre (ici de 0 à 1 023) que le microcontrôleur compare à des seuils.</li>
+        <li>Un système qui surveille en permanence place ses tests dans une boucle <strong>« répéter indéfiniment »</strong>.</li>
+      </ul>
+    </div>
+  </section>
+  <div class="footer">Collège Saint Pierre – Les Essarts · Séquence P12</div>
+</main>
+<script>
+(function(){
+  "use strict";
+  var CLE = "p12_convertisseur_can_v1";
+  var $ = function(id){ return document.getElementById(id); };
+  function norm(s){ return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g," ").trim(); }
+  function fr(n, d){ return n.toLocaleString("fr-FR", {minimumFractionDigits:d, maximumFractionDigits:d}); }
+
+  /* Points mesurés du document 3 ; entre eux, interpolation sur le logarithme de la résistance */
+  var TABLE = [[30,3300],[40,840],[50,123]];
+  var RT = 47; /* kΩ, résistance du montage (non demandée aux élèves) */
+  function resistance(h){
+    var i = h <= 40 ? 0 : 1, a = TABLE[i], b = TABLE[i+1], t = (h - a[0]) / (b[0] - a[0]);
+    return Math.exp(Math.log(a[1]) + t * (Math.log(b[1]) - Math.log(a[1])));
+  }
+  function tension(R){ return 5 * RT / (R + RT); }
+  function can(U){ return Math.min(1023, Math.floor(U * 1024 / 5)); }
+
+  var pompe = false;
+  function majChaine(){
+    var h = +$("hum").value, R = resistance(h), U = tension(R), N = can(U);
+    var reserve = $("reserve").checked, legumes = $("legumes").checked;
+    /* Programme de référence : la pompe démarre sous 54, s'arrête au-dessus de 283, sinon garde son état */
+    if (!reserve) pompe = false; else { if (N < 54 && legumes) pompe = true; if (N > 283) pompe = false; }
+    $("humVal").textContent = h + " %";
+    $("vR").textContent = fr(Math.round(R), 0) + " kΩ";
+    $("vU").textContent = fr(U, 2) + " V";
+    $("vN").textContent = N;
+    $("vT").textContent = !reserve ? "réserve vide → voyant rouge" : N < 54 ? (legumes ? N + " < 54 → arroser" : N + " < 54 mais pas de légumes") : N > 283 ? N + " > 283 → arrêter" : "entre 54 et 283 → ne rien changer";
+    $("vP").textContent = pompe ? "ON" : "OFF";
+    $("vP").style.color = pompe ? "#1E6B3B" : "#566070";
+    document.querySelectorAll("table.can tr[data-h]").forEach(function(tr){ tr.classList.toggle("ici", +tr.dataset.h === h); });
+  }
+  ["hum","reserve","legumes"].forEach(function(id){ $(id).addEventListener("input", majChaine); });
+
+  /* ── Programme par blocs ── */
+  var CHAMPS = ["p-boucle","p-bas","p-et","p-on","p-haut","p-off"];
+  var etat = {hyp:"", p:{}, concl:""};
+  try{ var s = JSON.parse(localStorage.getItem(CLE)||"null"); if (s && s.p) etat = Object.assign(etat, s); }catch(e){}
+  function sauver(){ try{ localStorage.setItem(CLE, JSON.stringify(etat)); }catch(e){} }
+  CHAMPS.forEach(function(id){
+    var el = $(id); if (etat.p[id] != null) el.value = etat.p[id];
+    el.addEventListener("input", function(){ etat.p[id] = el.value; el.classList.remove("bon","faux"); sauver(); });
+  });
+  function nombre(v){ var n = parseFloat(String(v||"").replace(/\s/g,"").replace(",", ".")); return isNaN(n) ? null : n; }
+  var ATTENDU = {
+    "p-boucle":[function(v){ return v==="indef"; }, "La boucle : le bac doit surveiller l'humidité en permanence, sans jamais s'arrêter. « Répéter jusqu'à réserve suffisante » s'arrête dès le départ, puisque la réserve est pleine : la pompe ne démarrerait jamais."],
+    "p-bas":[function(v){ return nombre(v)===54; }, "Le seuil bas : 40 % d'humidité correspond à la valeur CAN 54 (document 3)."],
+    "p-et":[function(v){ return v==="legumes"; }, "La deuxième condition : on n'arrose que s'il y a des légumes dans le bac."],
+    "p-on":[function(v){ return v==="ON"; }, "Sable trop sec : la pompe doit se mettre en marche (ON)."],
+    "p-haut":[function(v){ return nombre(v)===283; }, "Le seuil haut : 50 % d'humidité correspond à la valeur CAN 283."],
+    "p-off":[function(v){ return v==="OFF"; }, "Sable assez humide : la pompe doit s'arrêter (OFF)."]
+  };
+  $("btnVerif").addEventListener("click", function(){
+    var erreurs = [];
+    CHAMPS.forEach(function(id){ var ok = ATTENDU[id][0]($(id).value); $(id).classList.toggle("bon", ok); $(id).classList.toggle("faux", !ok); if (!ok) erreurs.push(ATTENDU[id][1]); });
+    var m = $("msgProg");
+    if (!erreurs.length){ m.className = "msg ok"; m.textContent = "Toutes les cases sont justes. Teste le programme pour voir l'humidité rester entre 40 % et 50 %."; }
+    else { m.className = "msg ko"; m.innerHTML = erreurs.length + " case" + (erreurs.length>1?"s":"") + " à revoir :<ul>" + erreurs.map(function(e){ return "<li>" + e + "</li>"; }).join("") + "</ul>"; }
+  });
+
+  /* Simulation : le programme de l'élève est exécuté tel qu'il est écrit */
+  /* Hors du tableau (sous 30 % ou au-dessus de 50 %), la courbe est prolongée */
+  function hVersCan(h){ return can(tension(resistance(h))); }
+  $("btnTester").addEventListener("click", function(){
+    var boucle = $("p-boucle").value, bas = nombre($("p-bas").value), et = $("p-et").value, on = $("p-on").value, haut = nombre($("p-haut").value), off = $("p-off").value;
+    var h = 45, p = false, tours = 0, arret = "", serie = [];
+    for (var t = 0; t < 120; t++){
+      var continuer = boucle === "indef" || (boucle === "dix" && tours < 10);
+      if (boucle === "jusqua" && tours === 0){ arret = "La boucle « répéter jusqu'à réserve d'eau suffisante » ne s'exécute jamais : la réserve est déjà pleine au démarrage."; }
+      if (!boucle) arret = "Choisis d'abord le type de boucle.";
+      if (continuer && !arret){
+        tours++;
+        var N = hVersCan(h), legumes = true;
+        var cond2 = et === "legumes" ? legumes : et === "pompe" ? !p : false;
+        if (bas != null && N < bas && cond2 && on) p = on === "ON";
+        if (haut != null && N > haut && off) p = off === "ON";
+      } else if (boucle === "dix" && tours >= 10 && !arret){ arret = "Après 10 répétitions, le programme s'arrête : plus personne ne surveille le sable."; }
+      h += p ? 1.2 : -0.35;            /* la pompe humidifie, l'air sèche le sable */
+      h = Math.max(20, Math.min(70, h));
+      serie.push([h, p]);
+    }
+    dessiner(serie);
+    var mini = Math.min.apply(null, serie.map(function(s){ return s[0]; })), maxi = Math.max.apply(null, serie.map(function(s){ return s[0]; }));
+    var dedans = mini >= 38.5 && maxi <= 51.5;
+    var m = $("msgProg");
+    m.className = "msg " + (dedans && !arret ? "ok" : "ko");
+    m.textContent = (arret ? arret + " " : "") + "Pendant le test, l'humidité est restée entre " + fr(mini, 0) + " % et " + fr(maxi, 0) + " %." +
+      (dedans && !arret ? " Le cahier des charges (40 % à 50 %) est respecté." : " Le cahier des charges (40 % à 50 %) n'est pas respecté : clique sur « Vérifier les cases ».");
+  });
+  function dessiner(serie){
+    var W = 600, H = 220, g = "", x0 = 46, y = function(h){ return 190 - (h - 20) / 50 * 170; }, dx = (W - x0 - 10) / serie.length;
+    g += '<rect x="'+x0+'" y="'+y(50)+'" width="'+(W-x0-10)+'" height="'+(y(40)-y(50))+'" fill="#E8F5EC"/>';
+    [20,30,40,50,60,70].forEach(function(h){ g += '<line x1="'+x0+'" x2="'+(W-10)+'" y1="'+y(h)+'" y2="'+y(h)+'" stroke="#E3EAF2"/><text x="'+(x0-6)+'" y="'+(y(h)+4)+'" text-anchor="end" font-size="12" fill="#566070">'+h+' %</text>'; });
+    serie.forEach(function(s, i){ if (s[1]) g += '<rect x="'+(x0+i*dx)+'" y="196" width="'+(dx+0.5)+'" height="10" fill="#4C97FF"/>'; });
+    g += '<polyline fill="none" stroke="#C8611A" stroke-width="3" points="' + serie.map(function(s, i){ return (x0 + i*dx).toFixed(1) + "," + y(s[0]).toFixed(1); }).join(" ") + '"/>';
+    g += '<text x="'+(x0+4)+'" y="'+(y(50)-4)+'" font-size="12" fill="#1E6B3B">zone 40 % – 50 % du cahier des charges</text><text x="'+(W-10)+'" y="216" text-anchor="end" font-size="12" fill="#4C97FF">bleu : pompe ON</text>';
+    $("graph").innerHTML = g;
+  }
+
+  /* ── Hypothèse et conclusion ── */
+  document.querySelectorAll("#hypOpts .opt").forEach(function(b){
+    b.setAttribute("aria-pressed", etat.hyp === b.dataset.v);
+    b.addEventListener("click", function(){ etat.hyp = etat.hyp === b.dataset.v ? "" : b.dataset.v; document.querySelectorAll("#hypOpts .opt").forEach(function(x){ x.setAttribute("aria-pressed", x.dataset.v === etat.hyp); }); sauver(); });
+  });
+  $("concl").value = etat.concl;
+  $("concl").addEventListener("input", function(){ etat.concl = this.value; sauver(); });
+  $("btnConcl").addEventListener("click", function(){
+    var t = norm(etat.concl), mots = ["analogique","can","numerique","seuil"].filter(function(k){ return (" " + t + " ").indexOf(" " + k) >= 0; });
+    var m = $("msgConcl"); m.className = "msg info";
+    m.innerHTML = "Tu as utilisé " + mots.length + " mot" + (mots.length>1?"s":"") + " sur 4." +
+      "<br><strong>Réponse attendue :</strong> le capteur d'humidité délivre une tension <strong>analogique</strong>. Le <strong>CAN</strong> la transforme en une valeur <strong>numérique</strong> (de 0 à 1 023). Le microcontrôleur compare cette valeur à des <strong>seuils</strong> : en dessous de 54 (40 %), il met la pompe en marche ; au-dessus de 283 (50 %), il l'arrête." +
+      (etat.hyp === "nombre" ? " Ton hypothèse était juste." : etat.hyp ? " Ton hypothèse était différente : l'investigation a permis de la corriger." : "");
+  });
+  $("btnRecommencer").addEventListener("click", function(){ if (!confirm("Effacer ce que tu as fait sur cette page ?")) return; try{ localStorage.removeItem(CLE); }catch(e){} location.reload(); });
+
+  majChaine(); dessiner([]);
+})();
+</script>
+<script>window.CONFORT_LECTURE = { hote:".pbar-in", racine:"main", fonts:"https://blanchardromain-cyber.github.io/technologie-stpierre/pp4g/fonts/" };</script>
+<script src="https://blanchardromain-cyber.github.io/technologie-stpierre/assets/js/confort-lecture.js" defer></script>
+<script>window.LECTURE_IMMERSIVE = { racine:"main", hote:".pbar-in", sectionsFermees:"", classeFermeture:"" };</script>
+<script src="https://blanchardromain-cyber.github.io/technologie-stpierre/assets/js/lecture-immersive.js" defer></script>
+</body>
+</html>
