@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P12 — Le circuit du froid</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--navy:#1F3864;--blue:#2E75B6;--or:#C8611A;--vt:#1E6B3B;--rouge:#B42318;--fond:#f4f7fb;--bord:#dde5ee;--txt:#1f2430;--gris:#566070;
+        --q:#2E75B6;--h:#7A4FBF;--i:#C8611A;--c:#1E6B3B;--r:#B42318}
+  *{box-sizing:border-box}
+  body{font-family:'Inter',Arial,sans-serif;margin:0;background:var(--fond);color:var(--txt);line-height:1.5;font-size:16px}
+  .pbar{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--bord)}
+  .pbar-in{max-width:980px;margin:0 auto;padding:8px 16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .pbar-in a.retour{color:var(--navy);font-weight:700;text-decoration:none;font-size:14px;margin-right:auto}
+  main{max-width:980px;margin:0 auto;padding:18px 16px 60px}
+  header.band{background:var(--navy);color:#fff;border-radius:14px;padding:20px 22px}
+  header.band .k{font-size:12px;letter-spacing:.04em;color:#bcd2ee;font-weight:600}
+  header.band h1{margin:6px 0 0;font-size:24px;line-height:1.25}
+  header.band p{margin:8px 0 0;color:#dce8f8;font-size:15px}
+  .comp{margin-top:10px;font-size:13px;color:#dce8f8}
+  section.etape{background:#fff;border:1px solid var(--bord);border-radius:14px;padding:18px 20px;margin-top:16px;border-left:6px solid var(--c1,var(--blue))}
+  section.etape > h2{margin:0 0 10px;font-size:19px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .badge{display:inline-block;border-radius:999px;padding:3px 12px;font-size:12px;font-weight:800;color:#fff;background:var(--c1,var(--blue));letter-spacing:.03em;text-transform:uppercase}
+  #question{--c1:var(--q)} #hypothese{--c1:var(--h)} #experience,#circuit,#associer{--c1:var(--i)} #conclure{--c1:var(--c)} #retenir{--c1:var(--r)}
+  .consigne{background:#F5F8FC;border-radius:10px;padding:10px 14px;margin:8px 0 12px}
+  .btn{font:inherit;font-size:15px;font-weight:700;border:none;border-radius:10px;padding:10px 18px;cursor:pointer;background:var(--navy);color:#fff}
+  .btn:hover{filter:brightness(1.12)} .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn.sec{background:#fff;color:var(--navy);border:2px solid var(--navy)}
+  .btn:focus-visible,.opt:focus-visible{outline:3px solid #F2B705;outline-offset:2px}
+  .rang{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+  .retour-msg{margin-top:10px;border-radius:10px;padding:10px 14px;font-size:15px;display:none}
+  .retour-msg.ok{display:block;background:#E8F5EC;border-left:5px solid var(--vt)}
+  .retour-msg.ko{display:block;background:#FDECEA;border-left:5px solid var(--rouge)}
+  .retour-msg.info{display:block;background:#FFF6E5;border-left:5px solid var(--or)}
+  .opts{display:grid;gap:8px}
+  .opt{display:flex;gap:10px;align-items:flex-start;background:#fff;border:2px solid var(--bord);border-radius:10px;padding:10px 12px;cursor:pointer;font:inherit;text-align:left;color:var(--txt);width:100%}
+  .opt[aria-pressed="true"]{border-color:var(--navy);background:#EEF3FA}
+  textarea,select{font:inherit;font-size:16px;border:2px solid var(--bord);border-radius:8px;padding:8px 10px;background:#fff;color:var(--txt)}
+  textarea{width:100%;resize:vertical}
+  select{max-width:100%}
+  .securite{font-size:14px;background:#FFF6E5;border-radius:8px;padding:8px 12px;margin-top:8px}
+  .scene{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px;align-items:start}
+  #schema{display:block;width:100%;height:auto;background:#fff;border:1px solid var(--bord);border-radius:12px}
+  .organe{cursor:default}
+  .organe.actif .forme{stroke:#C8611A;stroke-width:4}
+  .explic{background:#F7F9FC;border:1px solid var(--bord);border-radius:12px;padding:12px 14px;min-height:150px}
+  .explic h3{margin:0 0 6px;font-size:17px;color:var(--navy)}
+  .etat{display:inline-block;border-radius:999px;padding:2px 10px;font-size:13px;font-weight:700;margin-bottom:6px}
+  .tab-wrap{overflow-x:auto}
+  table.assoc{border-collapse:collapse;width:100%;font-size:15px}
+  table.assoc th{background:var(--navy);color:#fff;padding:8px;text-align:left}
+  table.assoc td{border:1px solid var(--bord);padding:6px 8px;vertical-align:top}
+  td.bon select{border-color:var(--vt);background:#F1FAF3} td.faux select{border-color:var(--rouge);background:#FFF4F2}
+  .pourquoi{display:block;font-size:13px;margin-top:4px}
+  td.bon .pourquoi{color:var(--vt)} td.faux .pourquoi{color:var(--rouge)}
+  .retenir{background:#FFF4F2;border-radius:10px;padding:12px 16px}
+  table.ref{border-collapse:collapse;width:100%;font-size:15px;margin-top:8px}
+  table.ref th,table.ref td{border:1px solid #F0C9C2;padding:6px 8px;text-align:left}
+  table.ref th{background:#FBE3DE}
+  .footer{color:var(--gris);font-size:12px;text-align:center;margin-top:28px}
+  .print-only{display:none}
+  @media (max-width:760px){ .scene{grid-template-columns:1fr} header.band h1{font-size:21px} section.etape{padding:14px} }
+  @media (min-width:1400px){ body{font-size:18px} main,.pbar-in{max-width:1200px} }
+  @media (prefers-reduced-motion:reduce){ *{transition:none!important;animation:none!important} }
+  @media print{ .pbar,.btn,.rang,.no-print{display:none!important} body{background:#fff;font-size:12pt} section.etape{break-inside:avoid;border:1px solid #999} .print-only{display:block} }
+</style>
+</head>
+<body>
+<div class="pbar"><div class="pbar-in">
+  <a class="retour" href="./index.html">&larr; Séquence P12</a>
+  <button class="btn sec" id="btnRecommencer" type="button">Recommencer</button>
+  <button class="btn sec" id="btnImprimer" type="button">Imprimer</button>
+</div></div>
+
+<main>
+  <header class="band">
+    <div class="k">TECHNOLOGIE · 4ᵉ · Séquence P12 · Activité 1</div>
+    <h1>Le circuit du froid</h1>
+    <p>Comment un réfrigérateur garde-t-il nos aliments au frais ?</p>
+    <div class="comp"><strong>Compétence :</strong> Décrire et caractériser l’organisation interne d’un objet ou d’un système technique et ses échanges avec son environnement (énergies, données) · <strong>CPS travaillée :</strong> Coopérer en binôme · non noté</div>
+  </header>
+
+  <section class="etape" id="question">
+    <h2><span class="badge">1 · La question</span></h2>
+    <p style="font-size:20px;font-weight:700;margin:0">Le frigo fabrique-t-il du froid ?</p>
+  </section>
+
+  <section class="etape" id="hypothese">
+    <h2><span class="badge">2 · Mon hypothèse</span></h2>
+    <p class="consigne" data-consigne>Choisis ce que tu penses avant d'investiguer. Il n'y a pas de mauvaise réponse à cette étape.</p>
+    <div class="opts" id="hypOpts" role="group" aria-label="Hypothèses">
+      <button class="opt" type="button" data-v="oui" aria-pressed="false">Oui : il produit du froid et l'envoie à l'intérieur.</button>
+      <button class="opt" type="button" data-v="non" aria-pressed="false">Non : il retire la chaleur de l'intérieur.</button>
+      <button class="opt" type="button" data-v="nsp" aria-pressed="false">Je ne sais pas encore.</button>
+    </div>
+    <textarea id="hypTxt" rows="2" placeholder="Explique ton idée avec tes mots…" style="margin-top:8px"></textarea>
+  </section>
+
+  <section class="etape" id="experience">
+    <h2><span class="badge">3 · J'investigue</span> L'expérience de la goutte d'alcool</h2>
+    <p class="consigne" data-consigne>Avec l'accord de ton professeur, dépose <strong>une goutte d'alcool</strong> (ou de gel hydroalcoolique) sur le <strong>dos de ta main</strong>. Attends quelques secondes en soufflant doucement dessus. Que ressens-tu ?</p>
+    <div class="securite">⚠️ Une seule goutte, loin des yeux, de la bouche et de toute flamme.</div>
+    <div class="opts" id="expOpts" role="group" aria-label="Ce que je ressens" style="margin-top:10px">
+      <button class="opt" type="button" data-v="froid" aria-pressed="false">Ma peau se refroidit.</button>
+      <button class="opt" type="button" data-v="chaud" aria-pressed="false">Ma peau se réchauffe.</button>
+      <button class="opt" type="button" data-v="rien" aria-pressed="false">Je ne sens rien.</button>
+    </div>
+    <div class="retour-msg" id="expMsg" role="status" aria-live="polite"></div>
+  </section>
+
+  <section class="etape" id="circuit">
+    <h2><span class="badge">3 · J'investigue</span> Je suis le fluide frigorigène</h2>
+    <p class="consigne" data-consigne>Dans le réfrigérateur, un liquide, le <strong>fluide frigorigène</strong>, circule en boucle fermée. Clique sur « Étape suivante » pour le suivre organe par organe.</p>
+    <div class="scene">
+      <svg id="schema" viewBox="0 0 440 300" role="img" aria-label="Schéma du circuit frigorifique : évaporateur à l'intérieur, compresseur, condenseur à l'extérieur, capillaire">
+        <defs>
+          <marker id="fl" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#566070"/></marker>
+          <marker id="flR" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#C0392B"/></marker>
+        </defs>
+        <!-- Intérieur / extérieur -->
+        <rect x="12" y="52" width="168" height="200" rx="10" fill="#EAF4FF" stroke="#2E75B6" stroke-width="2"/>
+        <text x="20" y="84" font-size="12" font-weight="700" fill="#1F3864">Intérieur</text>
+        <text x="20" y="99" font-size="12" font-weight="700" fill="#1F3864">du frigo</text>
+        <rect x="282" y="52" width="150" height="200" rx="10" fill="#FFF3EC" stroke="#C8611A" stroke-width="2" stroke-dasharray="6 4"/>
+        <text x="426" y="84" text-anchor="end" font-size="12" font-weight="700" fill="#8A3E0F">Extérieur</text>
+        <text x="426" y="99" text-anchor="end" font-size="12" font-weight="700" fill="#8A3E0F">(cuisine)</text>
+        <!-- Aliments -->
+        <text x="40" y="236" font-size="22" aria-hidden="true">🥕🧀</text>
+        <!-- Échanges de chaleur -->
+        <path id="chaleurIn" d="M70,212 C80,196 92,206 104,190" fill="none" stroke="#C0392B" stroke-width="2.5" marker-end="url(#flR)" opacity="0"/>
+        <path id="chaleurOut" d="M372,150 C384,138 396,158 412,140" fill="none" stroke="#C0392B" stroke-width="2.5" marker-end="url(#flR)" opacity="0"/>
+        <!-- Tuyaux du circuit (couleur = état du fluide) -->
+        <path d="M120,226 V272 H190" fill="none" stroke="#7FB3E6" stroke-width="5"/>
+        <path d="M250,272 H340 V226" fill="none" stroke="#D9473A" stroke-width="5"/>
+        <path d="M340,96 V36 H262" fill="none" stroke="#E8913A" stroke-width="5"/>
+        <path d="M178,36 H120 V96" fill="none" stroke="#2E75B6" stroke-width="5"/>
+        <!-- Chemin suivi par la goutte de fluide (invisible) -->
+        <path id="chemin" d="M120,96 L120,226 L120,272 L220,272 L340,272 L340,226 L340,96 L340,36 L220,36 L120,36 L120,96" fill="none" stroke="none"/>
+        <!-- Organes -->
+        <g class="organe" id="o-evap"><path class="forme" d="M120,96 h24 v14 h-48 v14 h48 v14 h-48 v14 h48 v14 h-48 v14 h48 v14 h-48 v14 h24 v8" fill="none" stroke="#2E75B6" stroke-width="4" stroke-linejoin="round"/>
+          <text x="128" y="246" font-size="12" font-weight="700" fill="#1F3864">évaporateur</text></g>
+        <g class="organe" id="o-comp"><rect class="forme" x="176" y="256" width="88" height="32" rx="8" fill="#D5DCE3" stroke="#4A5562" stroke-width="2.5"/>
+          <text x="220" y="276" text-anchor="middle" font-size="11" font-weight="700" fill="#1f2430">compresseur</text></g>
+        <g class="organe" id="o-cond"><path class="forme" d="M340,226 h20 v-14 h-40 v-14 h40 v-14 h-40 v-14 h40 v-14 h-40 v-14 h40 v-14 h-40 v-14 h40 v-14 h-20 v-10" fill="none" stroke="#C0392B" stroke-width="4" stroke-linejoin="round"/>
+          <text x="388" y="246" text-anchor="middle" font-size="12" font-weight="700" fill="#8A3E0F">condenseur</text></g>
+        <g class="organe" id="o-capi"><path class="forme" d="M262,36 c-4,-10 -12,-10 -12,0 c0,10 -8,10 -12,0 c-4,-10 -12,-10 -12,0 c0,10 -8,10 -12,0 c-4,-10 -12,-10 -12,0 h-24" fill="none" stroke="#E8913A" stroke-width="3"/>
+          <text x="220" y="18" text-anchor="middle" font-size="12" font-weight="700" fill="#8A3E0F">capillaire</text></g>
+        <g class="organe" id="o-thermo"><rect class="forme" x="26" y="122" width="40" height="28" rx="5" fill="#fff" stroke="#1E6B3B" stroke-width="2.5"/>
+          <text x="46" y="141" text-anchor="middle" font-size="12" font-weight="800" fill="#1E6B3B">T °C</text>
+          <text x="46" y="164" text-anchor="middle" font-size="11" font-weight="700" fill="#1E6B3B">thermostat</text></g>
+        <path id="signal" d="M46,150 V190 Q46,262 186,268" fill="none" stroke="#1E6B3B" stroke-width="1.8" stroke-dasharray="4 4" marker-end="url(#fl)"/>
+        <!-- La goutte de fluide -->
+        <circle id="goutte" r="8" cx="120" cy="96" fill="#2E75B6" stroke="#fff" stroke-width="2.5"/>
+      </svg>
+      <div class="explic" aria-live="polite">
+        <h3 id="exTitre">Prêt ?</h3>
+        <span class="etat" id="exEtat" style="background:#EEF3FA;color:#1F3864">fluide frigorigène</span>
+        <p id="exTexte" style="margin:4px 0 0">La goutte bleue représente le fluide frigorigène. Il ne sort jamais du circuit.</p>
+      </div>
+    </div>
+    <div class="rang">
+      <button class="btn" type="button" id="btnPrec">◀ Étape précédente</button>
+      <button class="btn" type="button" id="btnSuiv">Étape suivante ▶</button>
+      <span id="exNum" style="color:var(--gris);font-size:14px"></span>
+    </div>
+  </section>
+
+  <section class="etape" id="associer">
+    <h2><span class="badge">3 · J'investigue</span> Chaque organe a sa fonction technique</h2>
+    <p class="consigne" data-consigne>Pour chaque solution technique, choisis la fonction technique qu'elle réalise.</p>
+    <div class="tab-wrap"><table class="assoc" id="tabAssoc"><thead><tr><th>Solution technique</th><th>Fonction technique</th></tr></thead><tbody></tbody></table></div>
+    <div class="rang"><button class="btn" type="button" id="btnAssoc">Vérifier</button></div>
+    <div class="retour-msg" id="assocMsg" role="status" aria-live="polite"></div>
+  </section>
+
+  <section class="etape" id="conclure">
+    <h2><span class="badge">4 · Je conclus</span></h2>
+    <p class="consigne" data-consigne>Réponds à la question de départ : le frigo fabrique-t-il du froid ? Compare avec ton hypothèse.</p>
+    <p class="print-only" id="hypImpr"></p>
+    <textarea id="conclTxt" rows="3" placeholder="Le frigo… car le fluide…"></textarea>
+    <div class="rang"><button class="btn" type="button" id="btnConcl">Comparer avec la réponse attendue</button></div>
+    <div class="retour-msg" id="conclMsg" role="status" aria-live="polite"></div>
+  </section>
+
+  <section class="etape" id="retenir">
+    <h2><span class="badge">5 · Je retiens</span></h2>
+    <div class="retenir">
+      <p style="margin:0 0 6px">Le réfrigérateur <strong>ne fabrique pas de froid</strong> : le fluide frigorigène <strong>transporte la chaleur</strong> de l'intérieur vers l'extérieur. Quand un liquide s'évapore, il absorbe de la chaleur.</p>
+      <div class="tab-wrap"><table class="ref">
+        <thead><tr><th>Fonction technique (FT)</th><th>Solution technique (ST)</th></tr></thead>
+        <tbody id="tabRef"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <div class="footer">Collège Saint Pierre – Les Essarts · Séquence P12</div>
+</main>
+
+<script>
+(function(){
+  "use strict";
+  var CLE = "p12_circuit_froid_v1";
+  var $ = function(id){ return document.getElementById(id); };
+  function norm(s){ return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g," ").trim(); }
+
+  /* Vocabulaire de référence (synthèse P12) */
+  var FT = [
+    {n:"FT1", ft:"Dissiper la chaleur vers l'extérieur", st:"Condenseur", pourquoi:"Le condenseur, à l'arrière, rend à l'air de la cuisine la chaleur prise aux aliments."},
+    {n:"FT2", ft:"Comprimer le fluide frigorigène", st:"Compresseur", pourquoi:"Le compresseur comprime le gaz : sa pression et sa température montent."},
+    {n:"FT3", ft:"Absorber la chaleur à l'intérieur", st:"Évaporateur", pourquoi:"Dans l'évaporateur, le fluide s'évapore et prend la chaleur des aliments, comme l'alcool sur ta main."},
+    {n:"FT4", ft:"Déclencher le compresseur selon la température", st:"Thermostat", pourquoi:"Le thermostat mesure la température intérieure et met en marche ou arrête le compresseur."},
+    {n:"FT5", ft:"Détendre le fluide", st:"Capillaire", pourquoi:"Le capillaire, tube très fin, fait chuter la pression : le fluide devient très froid."},
+    {n:"FT6", ft:"Transporter la chaleur", st:"Fluide frigorigène", pourquoi:"Le fluide circule en boucle et emporte la chaleur de l'intérieur vers l'extérieur."}
+  ];
+  var ORDRE_ST = [2, 1, 0, 4, 3, 5];  /* ordre d'affichage des solutions, différent de l'ordre des FT */
+
+  var ETAPES = [
+    {o:"o-evap",  d:1,   titre:"1. L'évaporateur", etat:["liquide très froid → gaz","#DDEBFA","#1F3864"],
+     txt:"Le fluide arrive très froid. Il s'évapore et absorbe la chaleur des aliments : l'intérieur se refroidit.", in:true},
+    {o:"o-comp",  d:4,   titre:"2. Le compresseur", etat:["gaz froid → gaz chaud","#FBE3DE","#8A1C10"],
+     txt:"Le compresseur aspire le gaz et le comprime : sa pression et sa température montent. C'est lui qui consomme l'énergie électrique."},
+    {o:"o-cond",  d:7,   titre:"3. Le condenseur", etat:["gaz chaud → liquide tiède","#FDEBD9","#8A3E0F"],
+     txt:"À l'arrière du réfrigérateur, le gaz chaud cède sa chaleur à l'air de la cuisine et redevient liquide. Touche l'arrière d'un frigo : il est tiède !", out:true},
+    {o:"o-capi",  d:10,  titre:"4. Le capillaire", etat:["liquide tiède → liquide très froid","#DDEBFA","#1F3864"],
+     txt:"Le capillaire est un tube très fin : il détend le fluide. Sa pression chute et il devient très froid, prêt à repartir dans l'évaporateur."},
+    {o:"o-thermo",d:1,   titre:"5. Le thermostat", etat:["information","#E3F4E8","#1E6B3B"],
+     txt:"Le thermostat mesure la température à l'intérieur. Quand il fait trop chaud, il déclenche le compresseur ; quand c'est assez froid, il l'arrête."},
+    {o:null,      d:1,   titre:"6. Le fluide frigorigène", etat:["boucle fermée","#EEF3FA","#1F3864"],
+     txt:"Le fluide fait le tour du circuit sans jamais en sortir : il transporte la chaleur de l'intérieur vers l'extérieur. Le frigo ne fabrique pas de froid !", in:true, out:true}
+  ];
+  /* Points du circuit, dans le sens de circulation (le dernier rejoint le premier) :
+     1 = milieu de l'évaporateur, 4 = compresseur, 7 = milieu du condenseur, 10 = capillaire */
+  var POINTS = [[120,96],[120,160],[120,226],[120,272],[220,272],[340,272],[340,226],[340,160],[340,96],[340,36],[220,36],[120,36]];
+  var ETAPE_DE_FT = [2, 1, 0, 4, 3, 5];  /* FT1 condenseur → étape 3, FT2 compresseur → étape 2… */
+
+  var etat = {hyp:"", hypTxt:"", exp:"", pas:-1, assoc:["","","","","",""], concl:""};
+  function sauver(){ try{ localStorage.setItem(CLE, JSON.stringify(etat)); }catch(e){} }
+  try{ var s = JSON.parse(localStorage.getItem(CLE)||"null"); if (s && s.assoc) etat = Object.assign(etat, s); }catch(e){}
+
+  function groupeOpts(id, cle, apres){
+    document.querySelectorAll("#" + id + " .opt").forEach(function(b){
+      b.addEventListener("click", function(){ etat[cle] = (etat[cle]===b.dataset.v) ? "" : b.dataset.v; maj(); sauver(); if (apres) apres(); });
+    });
+  }
+  function majOpts(id, v){ document.querySelectorAll("#" + id + " .opt").forEach(function(b){ b.setAttribute("aria-pressed", b.dataset.v===v ? "true":"false"); }); }
+
+  var EXP = {
+    froid:["ok","Oui : en s'évaporant, l'alcool prend de la chaleur à ta peau, qui se refroidit. Retiens bien ce phénomène : le réfrigérateur utilise le même."],
+    chaud:["ko","Refais l'expérience en soufflant doucement : l'alcool qui s'évapore prend de la chaleur à ta peau. Elle se refroidit."],
+    rien:["info","Souffle doucement sur la goutte : l'évaporation sera plus rapide. Normalement, ta peau se refroidit."]
+  };
+  function maj(){
+    majOpts("hypOpts", etat.hyp); majOpts("expOpts", etat.exp);
+    var m = $("expMsg");
+    if (etat.exp){ m.className = "retour-msg " + EXP[etat.exp][0]; m.textContent = EXP[etat.exp][1]; } else { m.className = "retour-msg"; m.textContent = ""; }
+    var lib = {oui:"il produit du froid", non:"il retire la chaleur de l'intérieur", nsp:"je ne savais pas"}[etat.hyp] || "";
+    $("hypImpr").textContent = "Mon hypothèse : " + (lib + " " + etat.hypTxt).trim();
+  }
+  groupeOpts("hypOpts", "hyp"); groupeOpts("expOpts", "exp");
+  $("hypTxt").value = etat.hypTxt;
+  $("hypTxt").addEventListener("input", function(){ etat.hypTxt = this.value; maj(); sauver(); });
+
+  /* ── Le circuit, pas à pas ── */
+  var anim = null, pos = 0, N = POINTS.length;
+  function poser(idx){ pos = idx; $("goutte").setAttribute("cx", POINTS[idx][0]); $("goutte").setAttribute("cy", POINTS[idx][1]); }
+  /* Rouge entre le compresseur et le condenseur (gaz chaud), bleu ailleurs */
+  function couleur(idx){ $("goutte").setAttribute("fill", idx >= 4 && idx <= 8 ? "#D9473A" : "#2E75B6"); }
+  /* La goutte glisse de point en point dans le sens du circuit ;
+     la position finale est posée directement, quoi qu'il arrive à l'animation */
+  function deplacer(a, tourComplet){
+    if (anim){ clearInterval(anim); anim = null; }
+    var de = pos, chemin = [de], k = de;
+    if (tourComplet){ do { k = (k + 1) % N; chemin.push(k); } while (k !== de); }
+    while (k !== a){ k = (k + 1) % N; chemin.push(k); }
+    if (chemin.length < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches){ poser(a); couleur(a); return; }
+    var seg = 0, t = 0;
+    anim = setInterval(function(){
+      t += 0.25;
+      if (t >= 1){ t = 0; seg++; }
+      if (seg >= chemin.length - 1){ clearInterval(anim); anim = null; poser(a); couleur(a); return; }
+      var p = POINTS[chemin[seg]], q = POINTS[chemin[seg+1]];
+      couleur(chemin[seg]);
+      $("goutte").setAttribute("cx", p[0] + (q[0]-p[0])*t); $("goutte").setAttribute("cy", p[1] + (q[1]-p[1])*t);
+    }, 35);
+    pos = a;
+  }
+  function montrerPas(i, anime){
+    document.querySelectorAll(".organe").forEach(function(g){ g.classList.remove("actif"); });
+    $("chaleurIn").setAttribute("opacity", 0); $("chaleurOut").setAttribute("opacity", 0);
+    if (i < 0){ poser(0); couleur(0); $("exNum").textContent = ""; $("btnPrec").disabled = true; $("btnSuiv").disabled = false; return; }
+    var e = ETAPES[i];
+    if (e.o) $(e.o).classList.add("actif");
+    if (e.in) $("chaleurIn").setAttribute("opacity", 1);
+    if (e.out) $("chaleurOut").setAttribute("opacity", 1);
+    $("exTitre").textContent = e.titre; $("exTexte").textContent = e.txt;
+    $("exEtat").textContent = e.etat[0]; $("exEtat").style.background = e.etat[1]; $("exEtat").style.color = e.etat[2];
+    if (anime) deplacer(e.d, i === ETAPES.length - 1); else { poser(e.d); couleur(e.d); }
+    $("exNum").textContent = (i + 1) + " / " + ETAPES.length;
+    $("btnPrec").disabled = i <= 0; $("btnSuiv").disabled = i >= ETAPES.length - 1;
+  }
+  $("btnSuiv").addEventListener("click", function(){ etat.pas = Math.min(ETAPES.length - 1, etat.pas + 1); montrerPas(etat.pas, true); sauver(); });
+  $("btnPrec").addEventListener("click", function(){ etat.pas = Math.max(0, etat.pas - 1); montrerPas(etat.pas, false); sauver(); });
+
+  /* ── Association ST → FT ── */
+  function rendreAssoc(){
+    var tb = $("tabAssoc").querySelector("tbody"); tb.innerHTML = "";
+    ORDRE_ST.forEach(function(k, ligne){
+      var tr = document.createElement("tr");
+      var opts = '<option value="">— Choisir —</option>' + FT.map(function(f, j){ return '<option value="'+j+'"'+(etat.assoc[ligne]===String(j)?" selected":"")+'>'+f.ft+'</option>'; }).join("");
+      tr.innerHTML = '<td><strong>' + FT[k].st + '</strong></td><td data-k="'+k+'"><select data-l="'+ligne+'" aria-label="Fonction technique du '+FT[k].st+'">' + opts + '</select></td>';
+      tb.appendChild(tr);
+    });
+    tb.querySelectorAll("select").forEach(function(s){
+      s.addEventListener("change", function(){ etat.assoc[+s.dataset.l] = s.value; var td = s.closest("td"); td.classList.remove("bon","faux"); var p = td.querySelector(".pourquoi"); if (p) p.remove(); sauver(); });
+    });
+  }
+  $("btnAssoc").addEventListener("click", function(){
+    var justes = 0, vides = 0;
+    $("tabAssoc").querySelectorAll("tbody td[data-k]").forEach(function(td, ligne){
+      var k = +td.dataset.k, v = etat.assoc[ligne], p = td.querySelector(".pourquoi"); if (p) p.remove();
+      td.classList.remove("bon","faux");
+      if (v === ""){ vides++; return; }
+      var ok = +v === k; if (ok) justes++;
+      td.classList.add(ok ? "bon" : "faux");
+      var s = document.createElement("span"); s.className = "pourquoi";
+      s.textContent = ok ? FT[k].pourquoi : "Pas tout à fait : relis l'étape « " + ETAPES[ETAPE_DE_FT[k]].titre + " » du circuit.";
+      td.appendChild(s);
+    });
+    var m = $("assocMsg");
+    if (justes === 6){ m.className = "retour-msg ok"; m.textContent = "Bravo, les 6 associations sont justes."; }
+    else { m.className = "retour-msg ko"; m.textContent = justes + " / 6 juste" + (justes>1?"s":"") + (vides ? " — " + vides + " ligne" + (vides>1?"s":"") + " sans réponse." : "."); }
+  });
+
+  /* ── Je conclus ── */
+  $("conclTxt").value = etat.concl;
+  $("conclTxt").addEventListener("input", function(){ etat.concl = this.value; sauver(); });
+  $("btnConcl").addEventListener("click", function(){
+    var t = norm(etat.concl), m = $("conclMsg");
+    var parleChaleur = /chaleur|chaud/.test(t);
+    m.className = "retour-msg info";
+    m.innerHTML = (t.length < 15 ? "Écris d'abord ta conclusion. " : parleChaleur ? "Bien : tu parles de la chaleur. " : "Pense à expliquer où va la chaleur. ") +
+      "<br><strong>Réponse attendue :</strong> non, le frigo ne fabrique pas de froid. Le fluide frigorigène <strong>absorbe la chaleur à l'intérieur</strong> (évaporateur) et la <strong>dissipe vers l'extérieur</strong> (condenseur) : il <strong>transporte la chaleur</strong>." +
+      (etat.hyp==="non" ? " Ton hypothèse était juste." : etat.hyp==="oui" ? " Ton hypothèse était différente : l'investigation a permis de la corriger." : "");
+  });
+
+  /* ── Je retiens : tableau de référence ── */
+  $("tabRef").innerHTML = FT.map(function(f){ return "<tr><td>" + f.n + " — " + f.ft + "</td><td>" + f.st + "</td></tr>"; }).join("");
+
+  $("btnRecommencer").addEventListener("click", function(){ if (!confirm("Effacer ce que tu as fait sur cette page ?")) return; try{ localStorage.removeItem(CLE); }catch(e){} location.hash = ""; location.reload(); });
+  $("btnImprimer").addEventListener("click", function(){ maj(); window.print(); });
+
+  /* État adressable : #pas-1 à #pas-6 (projection) */
+  var mh = /^#pas-(\d)$/.exec(location.hash); if (mh) etat.pas = Math.min(ETAPES.length, Math.max(1, +mh[1])) - 1;
+  maj(); rendreAssoc(); montrerPas(etat.pas, false);
+  if (mh) $("circuit").scrollIntoView();
+})();
+</script>
+
+<script>window.CONFORT_LECTURE = { hote:".pbar-in", racine:"main", fonts:"https://blanchardromain-cyber.github.io/technologie-stpierre/pp4g/fonts/" };</script>
+<script src="https://blanchardromain-cyber.github.io/technologie-stpierre/assets/js/confort-lecture.js" defer></script>
+<script>window.LECTURE_IMMERSIVE = { racine:"main", hote:".pbar-in", sectionsFermees:"", classeFermeture:"" };</script>
+<script src="https://blanchardromain-cyber.github.io/technologie-stpierre/assets/js/lecture-immersive.js" defer></script>
+</body>
+</html>
