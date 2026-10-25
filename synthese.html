@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P12 — Synthèse à conquérir</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--navy:#1F3864;--blue:#2E75B6;--or:#C8611A;--vt:#1E6B3B;--rouge:#B42318;--fond:#f4f7fb;--bord:#dde5ee;--txt:#1f2430;--gris:#566070}
+  *{box-sizing:border-box}
+  body{font-family:'Inter',Arial,sans-serif;margin:0;background:var(--fond);color:var(--txt);line-height:1.5;font-size:16px}
+  .pbar{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--bord)}
+  .pbar-in{max-width:900px;margin:0 auto;padding:8px 16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .pbar-in a.retour{color:var(--navy);font-weight:700;text-decoration:none;font-size:14px}
+  .prog{flex:1;min-width:120px;display:flex;align-items:center;gap:8px;font-size:14px;color:var(--gris);font-variant-numeric:tabular-nums}
+  .prog .barre{flex:1;height:8px;background:#E3EAF2;border-radius:999px;overflow:hidden}
+  .prog .barre span{display:block;height:100%;width:0;background:var(--vt);transition:width .4s}
+  .btn{font:inherit;font-size:14px;font-weight:700;border:none;border-radius:10px;padding:9px 14px;cursor:pointer;background:var(--navy);color:#fff}
+  .btn.sec{background:#fff;color:var(--navy);border:2px solid var(--navy)}
+  .btn:focus-visible,.opt:focus-visible{outline:3px solid #F2B705;outline-offset:2px}
+  main{max-width:900px;margin:0 auto;padding:18px 16px 60px}
+  header.band{background:var(--navy);color:#fff;border-radius:14px;padding:20px 22px}
+  header.band .k{font-size:12px;letter-spacing:.04em;color:#bcd2ee;font-weight:600}
+  header.band h1{margin:6px 0 0;font-size:24px;line-height:1.25}
+  header.band p{margin:8px 0 0;color:#dce8f8;font-size:15px}
+  .mode{background:#FFF6E5;border-radius:12px;padding:12px 16px;margin-top:14px;font-size:15px}
+  section.notion-s{background:#fff;border:1px solid var(--bord);border-radius:14px;margin-top:16px;overflow:hidden}
+  .sthdr{display:flex;align-items:center;gap:10px;padding:14px 18px;background:#F5F8FC}
+  .sthdr .num{width:32px;height:32px;border-radius:50%;background:var(--navy);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .sthdr h2{margin:0;font-size:18px;flex:1}
+  .etat{font-size:13px;font-weight:700;color:var(--gris);white-space:nowrap}
+  .etat.acq{color:var(--vt)}
+  .corps{padding:14px 18px}
+  .defi{border:2px dashed #C9D6E4;border-radius:12px;padding:12px 14px}
+  .defi .dt{font-weight:800;color:var(--or);font-size:14px;text-transform:uppercase;letter-spacing:.03em}
+  .ligne{padding:8px 0;border-bottom:1px solid #EEF2F6}
+  .ligne:last-of-type{border-bottom:none}
+  .enonce{display:block;font-weight:600;margin-bottom:6px}
+  .opts{display:flex;gap:6px;flex-wrap:wrap}
+  .opt{font:inherit;font-size:14px;background:#fff;border:2px solid var(--bord);border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--txt)}
+  .opt:disabled{cursor:default}
+  .opt.juste{border-color:var(--vt);background:#E8F5EC;font-weight:700}
+  .opt.faux{border-color:var(--rouge);background:#FDECEA;text-decoration:line-through}
+  .opt.montre{border-color:var(--vt);border-style:dashed;font-weight:700}
+  .dpied{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:14px;color:var(--gris);flex-wrap:wrap;gap:6px}
+  .lienrep{font:inherit;font-size:14px;background:none;border:none;color:var(--blue);text-decoration:underline;cursor:pointer}
+  .notion{display:none;margin-top:14px}
+  .notion.vue{display:block;animation:apparait .4s ease}
+  @keyframes apparait{from{opacity:0;transform:translateY(6px)}to{opacity:1}}
+  .def{background:#F3F8FD;border-left:4px solid var(--blue);border-radius:8px;padding:8px 12px;margin:8px 0}
+  .mot{font-weight:800;color:var(--navy)}
+  table.t{border-collapse:collapse;width:100%;font-size:15px;margin:8px 0}
+  table.t th,table.t td{border:1px solid var(--bord);padding:6px 8px;text-align:left;vertical-align:top}
+  table.t th{background:#EEF3FA}
+  .symb{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:8px 0}
+  .symb div{text-align:center;font-size:14px}
+  .symb svg{display:block;margin:0 auto 4px;width:70px;height:40px}
+  .chaine{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:8px 0;font-weight:700}
+  .chaine span.b{border-radius:10px;padding:8px 12px;border:2px solid var(--cc);color:var(--cc);background:#fff}
+  .cornes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0;font-size:15px}
+  .cornes > div{border:2px solid #C9D6E4;border-radius:10px;padding:8px 10px}
+  .cornes .q{font-size:13px;font-weight:700;color:var(--gris)}
+  .cornes .prod{grid-column:1/-1;text-align:center;background:var(--navy);color:#fff;font-weight:800;border-color:var(--navy)}
+  .cornes .but{grid-column:1/-1}
+  .exig{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:8px 0}
+  .exig > div{border:2px solid #7A4FBF;border-radius:6px;padding:6px 10px;font-size:14px;background:#FBF8FF}
+  .exig .st{font-size:11px;color:#7A4FBF;font-weight:700}
+  .exig .val{font-weight:800}
+  .entete-papier,.pied-papier{display:none}
+  .footer{color:var(--gris);font-size:12px;text-align:center;margin-top:28px}
+  @media (max-width:640px){ .symb{grid-template-columns:1fr 1fr} .exig{grid-template-columns:1fr} header.band h1{font-size:21px} .sthdr h2{font-size:16px} }
+  @media (min-width:1400px){ body{font-size:18px} main,.pbar-in{max-width:1100px} }
+  @media (prefers-reduced-motion:reduce){ .notion.vue{animation:none} }
+  /* La feuille imprimée est la même pour tous : toutes les notions, aucun défi */
+  @media print{
+    @page{margin:12mm}
+    body{background:#fff;font-size:10.5pt}
+    .pbar,.mode,.defi,header.band,.footer,.etat{display:none!important}
+    .notion{display:block!important;margin-top:4px}
+    section.notion-s{border:1px solid #999;margin-top:8px}
+    .def,table.t,.symb,.cornes,.exig,.sthdr{break-inside:avoid}
+    .sthdr{break-after:avoid}
+    .sthdr{padding:6px 10px} .corps{padding:6px 10px}
+    .entete-papier{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #1F3864;padding-bottom:6px;margin-bottom:6px}
+    .entete-papier h1{margin:0;font-size:15pt}
+    .pied-papier{display:block;text-align:center;font-size:8pt;color:#666;margin-top:8px}
+  }
+</style>
+</head>
+<body>
+<div class="pbar"><div class="pbar-in">
+  <a class="retour" href="./index.html">&larr; Séquence P12</a>
+  <div class="prog" aria-live="polite"><span id="pcount">0 / 6 notion</span><div class="barre"><span id="pfill"></span></div></div>
+  <button class="btn sec" type="button" id="btnTout" title="Dévoile toutes les notions, pour réviser">Afficher toute la synthèse</button>
+  <button class="btn sec" type="button" id="btnRecommencer">Recommencer</button>
+  <button class="btn" type="button" onclick="window.print()">🖨️ Imprimer ma synthèse</button>
+</div></div>
+
+<main>
+  <div class="entete-papier">
+    <div><div style="font-size:9pt">Technologie · 4ᵉ · Séquence P12 · Synthèse</div><h1>Comment la technologie facilite-t-elle notre alimentation ?</h1></div>
+    <div style="font-size:10pt">Nom : ............................ Classe : ........</div>
+  </div>
+
+  <header class="band">
+    <div class="k">TECHNOLOGIE · 4ᵉ · Séquence P12 · Synthèse</div>
+    <h1>La synthèse à conquérir</h1>
+    <p>Comment la technologie facilite-t-elle notre alimentation ?</p>
+  </header>
+  <div class="mode" data-nolecture><b>Cette synthèse se gagne.</b> Pour chaque notion, réponds d'abord au défi : la définition apparaît ensuite. Ce n'est pas noté, tu peux te tromper. La feuille imprimée contient toujours <b>toute</b> la synthèse, correcte et complète.</div>
+
+  <!-- NOTION 1 -->
+  <section class="notion-s" id="sec1">
+    <div class="sthdr"><span class="num">1</span><h2>Fonction d'usage, famille, lignée, principe technique</h2><span class="etat" id="etat1">à découvrir</span></div>
+    <div class="corps">
+      <div class="defi" data-notion="1"><div class="dt">Défi</div>
+        <div class="ligne" data-bonne="famille"><span class="enonce">Le moulin manuel, le mixeur et le robot cuiseur servent tous à préparer des aliments. Ils forment…</span>
+          <span class="opts"><button class="opt" type="button" data-v="famille">une famille</button><button class="opt" type="button" data-v="lignee">une lignée</button><button class="opt" type="button" data-v="principe">un principe technique</button></span></div>
+        <div class="ligne" data-bonne="lignee"><span class="enonce">Le réfrigérateur, puis le réfrigérateur connecté : même principe, qui évolue dans le temps. Ils forment…</span>
+          <span class="opts"><button class="opt" type="button" data-v="famille">une famille seulement</button><button class="opt" type="button" data-v="lignee">une lignée</button><button class="opt" type="button" data-v="usage">une fonction d'usage</button></span></div>
+        <div class="ligne" data-bonne="principe"><span class="enonce">« Faire évaporer un fluide pour absorber la chaleur », c'est…</span>
+          <span class="opts"><button class="opt" type="button" data-v="solution">une solution technique</button><button class="opt" type="button" data-v="principe">un principe technique</button><button class="opt" type="button" data-v="usage">une fonction d'usage</button></span></div>
+        <div class="dpied"><span class="score">0 / 3</span><button class="lienrep" type="button">Je préfère voir la réponse</button></div>
+      </div>
+      <div class="notion" id="notion1">
+        <div class="def"><span class="mot">Fonction d'usage</span> : le service rendu par l'objet, « il sert à… ». <em>Le réfrigérateur sert à conserver les aliments au froid.</em></div>
+        <div class="def"><span class="mot">Famille d'objets</span> : des objets qui ont la même fonction d'usage. <em>Moulin, mixeur, robot cuiseur.</em></div>
+        <div class="def"><span class="mot">Lignée d'objets</span> : des objets qui ont le même principe technique, qui évolue dans le temps. <em>Réfrigérateur → réfrigérateur connecté.</em></div>
+        <div class="def"><span class="mot">Principe technique ≠ solution technique</span> : le principe est le phénomène utilisé (un fluide qui s'évapore absorbe la chaleur) ; la solution technique est l'élément qui le réalise (l'évaporateur).</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NOTION 2 -->
+  <section class="notion-s" id="sec2">
+    <div class="sthdr"><span class="num">2</span><h2>Découverte, invention, innovation et évolution des objets</h2><span class="etat" id="etat2">à découvrir</span></div>
+    <div class="corps">
+      <div class="defi" data-notion="2"><div class="dt">Défi</div>
+        <div class="ligne" data-bonne="dec"><span class="enonce">1945 : Percy Spencer remarque que les micro-ondes font fondre sa barre chocolatée.</span>
+          <span class="opts"><button class="opt" type="button" data-v="dec">découverte</button><button class="opt" type="button" data-v="inv">invention</button><button class="opt" type="button" data-v="inn">innovation</button></span></div>
+        <div class="ligne" data-bonne="inv"><span class="enonce">1947 : le premier four à micro-ondes, haut de 1,80 m, équipe des restaurants.</span>
+          <span class="opts"><button class="opt" type="button" data-v="dec">découverte</button><button class="opt" type="button" data-v="inv">invention</button><button class="opt" type="button" data-v="inn">innovation</button></span></div>
+        <div class="ligne" data-bonne="inn"><span class="enonce">Le four à micro-ondes est vendu aux familles et s'installe dans les cuisines.</span>
+          <span class="opts"><button class="opt" type="button" data-v="dec">découverte</button><button class="opt" type="button" data-v="inv">invention</button><button class="opt" type="button" data-v="inn">innovation</button></span></div>
+        <div class="ligne" data-bonne="connexion"><span class="enonce">Le réfrigérateur connecté ajoute le Wi-Fi et une application. Dans quel domaine a-t-il évolué ?</span>
+          <span class="opts"><button class="opt" type="button" data-v="materiaux">les matériaux</button><button class="opt" type="button" data-v="energie">l'énergie</button><button class="opt" type="button" data-v="connexion">la connexion</button></span></div>
+        <div class="dpied"><span class="score">0 / 4</span><button class="lienrep" type="button">Je préfère voir la réponse</button></div>
+      </div>
+      <div class="notion" id="notion2">
+        <div class="def"><span class="mot">Découverte</span> : un phénomène est mis au jour. <span class="mot">Invention</span> : un objet ou un procédé nouveau est créé. <span class="mot">Innovation</span> : une invention adoptée sur le marché.</div>
+        <div class="def">Un objet technique évolue dans <span class="mot">4 domaines</span> : les <strong>matériaux</strong>, l'<strong>énergie</strong>, les <strong>fonctions</strong> et la <strong>connexion</strong>.</div>
+        <div class="def">Les objets n'apparaissent pas par hasard : ils évoluent sous l'effet de contextes <strong>scientifique, technique, économique et social</strong>.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NOTION 3 -->
+  <section class="notion-s" id="sec3">
+    <div class="sthdr"><span class="num">3</span><h2>Le réfrigérateur : fonctions et solutions techniques</h2><span class="etat" id="etat3">à découvrir</span></div>
+    <div class="corps">
+      <div class="defi" data-notion="3"><div class="dt">Défi</div>
+        <div class="ligne" data-bonne="cond"><span class="enonce">Quelle solution technique dissipe la chaleur vers l'extérieur ?</span>
+          <span class="opts"><button class="opt" type="button" data-v="evap">l'évaporateur</button><button class="opt" type="button" data-v="cond">le condenseur</button><button class="opt" type="button" data-v="thermo">le thermostat</button></span></div>
+        <div class="ligne" data-bonne="evap"><span class="enonce">Quelle solution technique absorbe la chaleur à l'intérieur ?</span>
+          <span class="opts"><button class="opt" type="button" data-v="evap">l'évaporateur</button><button class="opt" type="button" data-v="comp">le compresseur</button><button class="opt" type="button" data-v="cond">le condenseur</button></span></div>
+        <div class="ligne" data-bonne="capi"><span class="enonce">Quelle solution technique détend le fluide ?</span>
+          <span class="opts"><button class="opt" type="button" data-v="comp">le compresseur</button><button class="opt" type="button" data-v="capi">le capillaire</button><button class="opt" type="button" data-v="thermo">le thermostat</button></span></div>
+        <div class="ligne" data-bonne="non"><span class="enonce">Le réfrigérateur fabrique-t-il du froid ?</span>
+          <span class="opts"><button class="opt" type="button" data-v="oui">oui</button><button class="opt" type="button" data-v="non">non, il transporte la chaleur</button></span></div>
+        <div class="dpied"><span class="score">0 / 4</span><button class="lienrep" type="button">Je préfère voir la réponse</button></div>
+      </div>
+      <div class="notion" id="notion3">
+        <div class="def">Le réfrigérateur <strong>ne fabrique pas de froid</strong> : le fluide frigorigène <strong>transporte la chaleur</strong> de l'intérieur vers l'extérieur.</div>
+        <table class="t"><thead><tr><th>Fonction technique</th><th>Solution technique</th></tr></thead><tbody>
+          <tr><td>FT1 — Dissiper la chaleur vers l'extérieur</td><td>Condenseur</td></tr>
+          <tr><td>FT2 — Comprimer le fluide frigorigène</td><td>Compresseur</td></tr>
+          <tr><td>FT3 — Absorber la chaleur à l'intérieur</td><td>Évaporateur</td></tr>
+          <tr><td>FT4 — Déclencher le compresseur selon la température</td><td>Thermostat</td></tr>
+          <tr><td>FT5 — Détendre le fluide</td><td>Capillaire</td></tr>
+          <tr><td>FT6 — Transporter la chaleur</td><td>Fluide frigorigène</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </section>
+
+  <!-- NOTION 4 -->
+  <section class="notion-s" id="sec4">
+    <div class="sthdr"><span class="num">4</span><h2>Systèmes mécanisés, automatisés et algorigramme</h2><span class="etat" id="etat4">à découvrir</span></div>
+    <div class="corps">
+      <div class="defi" data-notion="4"><div class="dt">Défi</div>
+        <div class="ligne" data-bonne="nm"><span class="enonce">Le moulin manuel : l'humain tourne la manivelle et décide quand s'arrêter.</span>
+          <span class="opts"><button class="opt" type="button" data-v="nm">non mécanisé</button><button class="opt" type="button" data-v="m">mécanisé</button><button class="opt" type="button" data-v="a">automatisé</button></span></div>
+        <div class="ligne" data-bonne="m"><span class="enonce">Le mixeur électrique : le moteur tourne, l'humain appuie sur le bouton.</span>
+          <span class="opts"><button class="opt" type="button" data-v="nm">non mécanisé</button><button class="opt" type="button" data-v="m">mécanisé</button><button class="opt" type="button" data-v="a">automatisé</button></span></div>
+        <div class="ligne" data-bonne="a"><span class="enonce">Le robot cuiseur à balance enchaîne seul les étapes de la recette.</span>
+          <span class="opts"><button class="opt" type="button" data-v="nm">non mécanisé</button><button class="opt" type="button" data-v="m">mécanisé</button><button class="opt" type="button" data-v="a">automatisé</button></span></div>
+        <div class="ligne" data-bonne="losange"><span class="enonce">Dans un algorigramme, « Masse ajoutée ≥ 225 g ? » s'écrit dans…</span>
+          <span class="opts"><button class="opt" type="button" data-v="rect">un rectangle</button><button class="opt" type="button" data-v="losange">un losange</button><button class="opt" type="button" data-v="para">un parallélogramme</button></span></div>
+        <div class="dpied"><span class="score">0 / 4</span><button class="lienrep" type="button">Je préfère voir la réponse</button></div>
+      </div>
+      <div class="notion" id="notion4">
+        <table class="t"><thead><tr><th>Système</th><th>Qui fournit l'énergie ?</th><th>Qui pilote ?</th></tr></thead><tbody>
+          <tr><td><span class="mot">Non mécanisé</span></td><td>l'humain</td><td>l'humain</td></tr>
+          <tr><td><span class="mot">Mécanisé</span></td><td>une machine</td><td>l'humain</td></tr>
+          <tr><td><span class="mot">Automatisé</span></td><td>la machine</td><td>la machine, seule, grâce à un programme</td></tr>
+        </tbody></table>
+        <div class="def"><span class="mot">Algorigramme</span> : représentation graphique d'un algorithme, avec 4 symboles.</div>
+        <div class="symb">
+          <div><svg viewBox="0 0 70 40" aria-hidden="true"><ellipse cx="35" cy="20" rx="32" ry="16" fill="#E8F5EC" stroke="#1E6B3B" stroke-width="2"/></svg>Début / fin</div>
+          <div><svg viewBox="0 0 70 40" aria-hidden="true"><rect x="4" y="6" width="62" height="28" rx="2" fill="#E3EEFA" stroke="#2E75B6" stroke-width="2"/></svg>Traitement</div>
+          <div><svg viewBox="0 0 70 40" aria-hidden="true"><polygon points="35,2 68,20 35,38 2,20" fill="#FDECEA" stroke="#B42318" stroke-width="2"/></svg>Test</div>
+          <div><svg viewBox="0 0 70 40" aria-hidden="true"><polygon points="14,6 68,6 56,34 2,34" fill="#F1E9FB" stroke="#7A4FBF" stroke-width="2"/></svg>Entrée / sortie</div>
+        </div>
+        <div class="def">Un programme ne peut tester que ce qu'un <strong>capteur</strong> mesure : grâce à sa balance, le robot teste « masse ajoutée ≥ 225 g ? ».</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NOTION 5 -->
+  <section class="notion-s" id="sec5">
+    <div class="sthdr"><span class="num">5</span><h2>La chaîne d'information et les signaux</h2><span class="etat" id="etat5">à découvrir</span></div>
+    <div class="corps">
+      <div class="defi" data-notion="5"><div class="dt">Défi</div>
+        <div class="ligne" data-bonne="capteur"><span class="enonce">Le capteur d'humidité du bac à sable est…</span>
+          <span class="opts"><button class="opt" type="button" data-v="capteur">un capteur</button><button class="opt" type="button" data-v="micro">le microcontrôleur</button><button class="opt" type="button" data-v="act">un actionneur</button></span></div>
+        <div class="ligne" data-bonne="act"><span class="enonce">La pompe d'arrosage est…</span>
+          <span class="opts"><button class="opt" type="button" data-v="capteur">un capteur</button><button class="opt" type="button" data-v="micro">le microcontrôleur</button><button class="opt" type="button" data-v="act">un actionneur</button></span></div>
+        <div class="ligne" data-bonne="ana"><span class="enonce">La tension du capteur d'humidité varie de façon continue : c'est un signal…</span>
+          <span class="opts"><button class="opt" type="button" data-v="ana">analogique</button><button class="opt" type="button" data-v="log">logique</button><button class="opt" type="button" data-v="num">numérique</button></span></div>
+        <div class="ligne" data-bonne="log"><span class="enonce">Le flotteur de la réserve d'eau dit seulement « pleine » ou « vide » : c'est un signal…</span>
+          <span class="opts"><button class="opt" type="button" data-v="ana">analogique</button><button class="opt" type="button" data-v="log">logique</button><button class="opt" type="button" data-v="num">numérique</button></span></div>
+        <div class="dpied"><span class="score">0 / 4</span><button class="lienrep" type="button">Je préfère voir la réponse</button></div>
+      </div>
+      <div class="notion" id="notion5">
+        <div class="chaine"><span class="b" style="--cc:#2E75B6">Capteur<br><small>acquérir</small></span>→<span class="b" style="--cc:#C8611A">Microcontrôleur<br><small>traiter</small></span>→<span class="b" style="--cc:#1E6B3B">Actionneur<br><small>agir</small></span></div>
+        <div class="def"><span class="mot">Signal analogique</span> : il varie de façon continue (la tension du capteur d'humidité).</div>
+        <div class="def"><span class="mot">Signal logique</span> : il ne prend que deux états, 0 ou 1 (réserve pleine ou vide, pompe ON ou OFF).</div>
+        <div class="def"><span class="mot">CAN</span> (convertisseur analogique numérique) : il transforme une tension en nombre. Avec 10 bits et 5 V : de 0 à 1 023. <em>40 % d'humidité → 0,26 V → valeur 54.</em></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NOTION 6 -->
+  <section class="notion-s" id="sec6">
+    <div class="sthdr"><span class="num">6</span><h2>Exprimer le besoin : bête à cornes et diagramme des exigences</h2><span class="etat" id="etat6">à découvrir</span></div>
+    <div class="corps">
+      <div class="defi" data-notion="6"><div class="dt">Défi — le distributeur de croquettes du refuge</div>
+        <div class="ligne" data-bonne="qui"><span class="enonce">« Le personnel du refuge » répond à la question…</span>
+          <span class="opts"><button class="opt" type="button" data-v="qui">À qui rend-il service ?</button><button class="opt" type="button" data-v="quoi">Sur quoi agit-il ?</button><button class="opt" type="button" data-v="but">Dans quel but ?</button></span></div>
+        <div class="ligne" data-bonne="quoi"><span class="enonce">« Les chats » répond à la question…</span>
+          <span class="opts"><button class="opt" type="button" data-v="qui">À qui rend-il service ?</button><button class="opt" type="button" data-v="quoi">Sur quoi agit-il ?</button><button class="opt" type="button" data-v="but">Dans quel but ?</button></span></div>
+        <div class="ligne" data-bonne="exig"><span class="enonce">« Entre 100 g et 300 g de nourriture par jour et par chat », c'est…</span>
+          <span class="opts"><button class="opt" type="button" data-v="usage">une fonction d'usage</button><button class="opt" type="button" data-v="exig">une exigence chiffrée</button><button class="opt" type="button" data-v="st">une solution technique</button></span></div>
+        <div class="dpied"><span class="score">0 / 3</span><button class="lienrep" type="button">Je préfère voir la réponse</button></div>
+      </div>
+      <div class="notion" id="notion6">
+        <div class="def"><span class="mot">La bête à cornes</span> exprime le besoin avec trois questions : À qui rend-il service ? Sur quoi agit-il ? Dans quel but ?</div>
+        <div class="cornes">
+          <div><div class="q">À qui rend-il service ?</div>Au personnel du refuge</div>
+          <div><div class="q">Sur quoi agit-il ?</div>Sur les chats</div>
+          <div class="prod">Distributeur de croquettes pour refuge</div>
+          <div class="but"><div class="q">Dans quel but ?</div>Nourrir chaque chat avec la quantité adaptée, même en l'absence du personnel</div>
+        </div>
+        <div class="def"><span class="mot">Le diagramme des exigences</span> liste ce que l'objet doit respecter, chaque fois avec une <strong>valeur</strong> qu'on peut vérifier.</div>
+        <div class="exig">
+          <div><div class="st">«exigence» Autonomie</div>Réserve pour <span class="val">4 jours</span></div>
+          <div><div class="st">«exigence» Nourriture</div><span class="val">100 g à 300 g</span> par jour et par chat</div>
+          <div><div class="st">«exigence» Eau</div><span class="val">30 cL</span> par jour et par chat</div>
+          <div><div class="st">«exigence» Reconnaissance</div>Chaque chat est reconnu <span class="val">individuellement</span></div>
+          <div><div class="st">«exigence» Communication</div>Wi-Fi longue portée, faible consommation : <span class="val">IEEE 802.11ah</span></div>
+          <div><div class="st">«exigence» Alimentation électrique</div>Prise domestique : <span class="val">CEI 60884-1</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="pied-papier">Collège Saint Pierre – Les Essarts · Technologie 4ᵉ · Séquence P12</div>
+  <div class="footer">Collège Saint Pierre – Les Essarts · Séquence P12</div>
+</main>
+
+<script>
+(function(){
+  "use strict";
+  var CLE = "p12_synthese_etat_v1", TOTAL = 6;
+  var vues = {}, faites = {};
+  try{ var s = JSON.parse(localStorage.getItem(CLE)||"null"); if (s){ vues = s.vues || {}; faites = s.faites || {}; } }catch(e){}
+  function sauver(){ try{ localStorage.setItem(CLE, JSON.stringify({vues:vues, faites:faites})); }catch(e){} }
+
+  /* Chaque ligne se fige à la première réponse ; une erreur montre la bonne réponse et ne bloque jamais */
+  function figer(ligne, choix, montrerSeulement){
+    var bonne = ligne.dataset.bonne;
+    ligne.querySelectorAll(".opt").forEach(function(o){
+      o.disabled = true; o.classList.remove("juste","faux","montre");
+      if (o.dataset.v === bonne) o.classList.add(montrerSeulement || choix !== bonne ? "montre" : "juste");
+      if (o.dataset.v === choix && choix !== bonne) o.classList.add("faux");
+    });
+    if (choix === bonne && !montrerSeulement) ligne.querySelector('.opt[data-v="'+bonne+'"]').classList.replace("montre","juste");
+  }
+  function majDefi(defi){
+    var n = defi.dataset.notion, lignes = defi.querySelectorAll(".ligne"), justes = 0, finies = 0;
+    lignes.forEach(function(l, i){ var c = faites[n + "-" + i]; if (c != null){ finies++; if (c === l.dataset.bonne) justes++; } });
+    defi.querySelector(".score").textContent = justes + " / " + lignes.length;
+    if (finies === lignes.length) ouvrir(n);
+  }
+  function ouvrir(n){
+    vues[n] = true;
+    document.getElementById("notion" + n).classList.add("vue");
+    var e = document.getElementById("etat" + n); e.textContent = "✓ acquise"; e.classList.add("acq");
+    var k = Object.keys(vues).length;
+    document.getElementById("pcount").textContent = k + " / " + TOTAL + " notion" + (k > 1 ? "s" : "");
+    document.getElementById("pfill").style.width = (k / TOTAL * 100) + "%";
+    sauver();
+  }
+  document.querySelectorAll(".defi").forEach(function(defi){
+    var n = defi.dataset.notion;
+    defi.querySelectorAll(".ligne").forEach(function(ligne, i){
+      var cle = n + "-" + i;
+      if (faites[cle] != null) figer(ligne, faites[cle], faites[cle] === "?");
+      ligne.querySelectorAll(".opt").forEach(function(o){
+        o.addEventListener("click", function(){ if (faites[cle] != null) return; faites[cle] = o.dataset.v; figer(ligne, o.dataset.v); majDefi(defi); sauver(); });
+      });
+    });
+    defi.querySelector(".lienrep").addEventListener("click", function(){
+      defi.querySelectorAll(".ligne").forEach(function(ligne, i){ var cle = n + "-" + i; if (faites[cle] == null){ faites[cle] = "?"; figer(ligne, "?", true); } });
+      majDefi(defi); sauver();
+    });
+    majDefi(defi);
+  });
+  document.getElementById("btnTout").addEventListener("click", function(){
+    document.querySelectorAll(".defi .lienrep").forEach(function(b){ b.click(); });
+  });
+  document.getElementById("btnRecommencer").addEventListener("click", function(){
+    if (!confirm("Effacer ta progression sur cette synthèse ?")) return;
+    try{ localStorage.removeItem(CLE); }catch(e){} location.reload();
+  });
+})();
+</script>
+<script>window.CONFORT_LECTURE = { hote:".pbar-in", racine:"main", fonts:"https://blanchardromain-cyber.github.io/technologie-stpierre/pp4g/fonts/" };</script>
+<script src="https://blanchardromain-cyber.github.io/technologie-stpierre/assets/js/confort-lecture.js" defer></script>
+<script>window.LECTURE_IMMERSIVE = { racine:"main", hote:".pbar-in", sectionsFermees:"", classeFermeture:"" };</script>
+<script src="https://blanchardromain-cyber.github.io/technologie-stpierre/assets/js/lecture-immersive.js" defer></script>
+</body>
+</html>
