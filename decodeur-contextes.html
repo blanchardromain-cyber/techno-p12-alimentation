@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P12 — Le décodeur de contextes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--navy:#1F3864;--blue:#2E75B6;--or:#C8611A;--vt:#1E6B3B;--rouge:#B42318;--fond:#f4f7fb;--bord:#dde5ee;--txt:#1f2430;--gris:#566070;
+        --S:#3949AB;--T:#1E6B3B;--E:#9A5B00;--So:#AD1457}
+  *{box-sizing:border-box}
+  body{font-family:'Inter',Arial,sans-serif;margin:0;background:var(--fond);color:var(--txt);line-height:1.5;font-size:16px}
+  .pbar{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--bord)}
+  .pbar-in{max-width:980px;margin:0 auto;padding:8px 16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .pbar-in a.retour{color:var(--navy);font-weight:700;text-decoration:none;font-size:14px;margin-right:auto}
+  main{max-width:980px;margin:0 auto;padding:18px 16px 60px}
+  header.band{background:var(--navy);color:#fff;border-radius:14px;padding:20px 22px}
+  header.band .k{font-size:12px;letter-spacing:.04em;color:#bcd2ee;font-weight:600}
+  header.band h1{margin:6px 0 0;font-size:24px;line-height:1.25}
+  header.band p{margin:8px 0 0;color:#dce8f8;font-size:15px}
+  .comp{margin-top:10px;font-size:13px;color:#dce8f8}
+  section.etape{background:#fff;border:1px solid var(--bord);border-radius:14px;padding:18px 20px;margin-top:16px;border-left:6px solid var(--c1,var(--blue))}
+  section.etape > h2{margin:0 0 10px;font-size:19px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .badge{display:inline-block;border-radius:999px;padding:3px 12px;font-size:12px;font-weight:800;color:#fff;background:var(--c1,var(--blue));letter-spacing:.03em;text-transform:uppercase}
+  #question{--c1:#2E75B6} #contextes,#jeu{--c1:#C8611A} #retenir{--c1:#B42318}
+  .consigne{background:#F5F8FC;border-radius:10px;padding:10px 14px;margin:8px 0 12px}
+  .cartes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .carte{border:2px solid var(--cc);border-radius:12px;padding:12px 14px;background:#fff}
+  .carte h3{margin:0 0 4px;font-size:16px;color:var(--cc)}
+  .carte p{margin:0;font-size:15px}
+  .carte .ex{font-size:13px;color:var(--gris);margin-top:6px}
+  .item{border:2px solid var(--bord);border-radius:12px;padding:10px 12px;margin-top:8px}
+  .item.bon{border-color:var(--vt);background:#F3FAF5} .item.faux{border-color:var(--rouge);background:#FFF6F5}
+  .item p{margin:0 0 8px}
+  .choix{display:flex;gap:6px;flex-wrap:wrap}
+  .ch{font:inherit;font-size:14px;font-weight:700;border-radius:999px;padding:6px 12px;cursor:pointer;background:#fff;border:2px solid var(--cc);color:var(--cc)}
+  .ch[aria-pressed="true"]{background:var(--cc);color:#fff}
+  .ch:focus-visible,.btn:focus-visible{outline:3px solid #F2B705;outline-offset:2px}
+  .fb{font-size:14px;margin-top:6px}
+  .btn{font:inherit;font-size:15px;font-weight:700;border:none;border-radius:10px;padding:10px 18px;cursor:pointer;background:var(--navy);color:#fff}
+  .btn.sec{background:#fff;color:var(--navy);border:2px solid var(--navy)}
+  .rang{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+  .score{margin-top:10px;border-radius:10px;padding:10px 14px;font-weight:700;display:none}
+  .score.on{display:block;background:#EEF3FA}
+  .retenir{background:#FFF4F2;border-radius:10px;padding:12px 16px}
+  .footer{color:var(--gris);font-size:12px;text-align:center;margin-top:28px}
+  @media (max-width:640px){ .cartes{grid-template-columns:1fr} header.band h1{font-size:21px} section.etape{padding:14px} }
+  @media (min-width:1400px){ body{font-size:18px} main,.pbar-in{max-width:1200px} }
+  @media print{ .pbar,.btn,.rang{display:none!important} body{background:#fff} section.etape{break-inside:avoid;border:1px solid #999} }
+</style>
+</head>
+<body>
+<div class="pbar"><div class="pbar-in">
+  <a class="retour" href="./index.html">&larr; Séquence P12</a>
+  <button class="btn sec" id="btnRecommencer" type="button">Recommencer</button>
+  <button class="btn sec" type="button" onclick="window.print()">Imprimer</button>
+</div></div>
+
+<main>
+  <header class="band">
+    <div class="k">TECHNOLOGIE · 4ᵉ · Séquence P12 · Activité 1</div>
+    <h1>Le décodeur de contextes</h1>
+    <p>Pourquoi les objets techniques apparaissent-ils et évoluent-ils ?</p>
+    <div class="comp"><strong>Compétence :</strong> Décrire les liens entre usages et évolutions technologiques des objets et des systèmes techniques · <strong>CPS travaillée :</strong> Coopérer en binôme · non noté</div>
+  </header>
+
+  <section class="etape" id="question">
+    <h2><span class="badge">1 · La question</span></h2>
+    <p style="margin:0">Le réfrigérateur, le robot culinaire, la boîte de conservation… Un objet technique apparaît-il par hasard ? Qu'est-ce qui pousse à l'inventer, puis à le faire évoluer ?</p>
+  </section>
+
+  <section class="etape" id="contextes">
+    <h2><span class="badge">2 · J'investigue</span> Les 4 contextes</h2>
+    <p class="consigne" data-consigne>Lis les 4 contextes. Un objet apparaît ou évolue souvent sous l'effet de plusieurs contextes à la fois.</p>
+    <div class="cartes">
+      <div class="carte" style="--cc:var(--S)"><h3>🔬 Contexte scientifique (S)</h3><p>De nouvelles <strong>découvertes</strong> et <strong>connaissances</strong> ouvrent de nouvelles possibilités.</p><div class="ex">Ex. : on découvre qu'un liquide qui s'évapore absorbe de la chaleur.</div></div>
+      <div class="carte" style="--cc:var(--T)"><h3>⚙️ Contexte technique (T)</h3><p>De nouveaux <strong>matériaux</strong>, <strong>procédés</strong> ou <strong>composants</strong> permettent de fabriquer de nouveaux objets.</p><div class="ex">Ex. : un moteur électrique plus petit.</div></div>
+      <div class="carte" style="--cc:var(--E)"><h3>💰 Contexte économique (E)</h3><p>Les <strong>coûts</strong> baissent, la production devient industrielle, de nouveaux <strong>marchés</strong> apparaissent.</p><div class="ex">Ex. : la fabrication en grande série.</div></div>
+      <div class="carte" style="--cc:var(--So)"><h3>👨‍👩‍👧 Contexte social (So)</h3><p>Les <strong>modes de vie</strong>, les <strong>besoins</strong> et les habitudes changent.</p><div class="ex">Ex. : on a moins de temps pour cuisiner.</div></div>
+    </div>
+  </section>
+
+  <section class="etape" id="jeu">
+    <h2><span class="badge">2 · J'investigue</span> Défi : associe chaque situation à son contexte</h2>
+    <p class="consigne" data-consigne>Pour chaque situation, choisis S, T, E ou So, puis clique sur « Vérifier ». Tu peux recommencer autant de fois que tu veux.</p>
+    <div id="items"></div>
+    <div class="rang"><button class="btn" type="button" id="btnVerif">Vérifier mes réponses</button></div>
+    <div class="score" id="score" role="status" aria-live="polite"></div>
+  </section>
+
+  <section class="etape" id="retenir">
+    <h2><span class="badge">3 · Je retiens</span></h2>
+    <div class="retenir">Les objets techniques n'apparaissent pas par hasard : ils répondent à des <strong>besoins</strong> et évoluent sous l'effet de <strong>contextes scientifique, technique, économique et social</strong>, souvent plusieurs à la fois.</div>
+  </section>
+
+  <div class="footer">Collège Saint Pierre – Les Essarts · Séquence P12</div>
+</main>
+
+<script>
+(function(){
+  "use strict";
+  var CLE = "p12_decodeur_contextes_v1";
+  /* Situations reprises de la capsule A1 du site Technologie */
+  var DATA = [
+    {txt:"La découverte que certains liquides absorbent la chaleur en s'évaporant a permis d'inventer le réfrigérateur.", ans:"S",
+     expl:"C'est une avancée scientifique : une connaissance nouvelle ouvre la voie à un objet technique."},
+    {txt:"L'invention du moteur électrique miniaturisé a rendu possible la création du robot culinaire.", ans:"T",
+     expl:"C'est un progrès technique : un nouveau composant permet de concevoir un nouvel objet."},
+    {txt:"La baisse du coût de l'acier inoxydable a permis de produire des réfrigérateurs abordables pour toutes les familles.", ans:"E",
+     expl:"C'est un facteur économique : la baisse du coût des matières premières rend l'objet accessible."},
+    {txt:"De plus en plus de femmes travaillent en dehors du foyer : on a besoin d'appareils qui font gagner du temps en cuisine.", ans:"So",
+     expl:"C'est un contexte social : l'évolution des modes de vie crée de nouveaux besoins."},
+    {txt:"La mise au point d'un plastique alimentaire imperméable a permis de créer des boîtes de conservation hermétiques.", ans:"T",
+     expl:"C'est un progrès technique : un nouveau matériau permet de nouveaux objets."},
+    {txt:"La croissance des supermarchés a poussé à fabriquer des réfrigérateurs plus grands.", ans:"E",
+     expl:"C'est un facteur économique : l'organisation du marché influence la conception des objets."}
+  ];
+  var NOMS = {S:"scientifique", T:"technique", E:"économique", So:"social"};
+  var INDICE = {S:"Cherche une découverte ou une connaissance nouvelle.", T:"Cherche un matériau, un procédé ou un composant nouveau.",
+                E:"Cherche une question de coût, de marché ou de production.", So:"Cherche un changement dans la façon de vivre."};
+  var rep = [], essais = [], verifie = [];
+  try{ var s = JSON.parse(localStorage.getItem(CLE)||"null"); if (s){ rep = s.rep || []; essais = s.essais || []; } }catch(e){}
+  function sauver(){ try{ localStorage.setItem(CLE, JSON.stringify({rep:rep, essais:essais})); }catch(e){} }
+
+  function rendre(){
+    var html = "";
+    DATA.forEach(function(d, i){
+      html += '<div class="item" id="it'+i+'"><p>'+(i+1)+'. '+d.txt+'</p><div class="choix" role="group" aria-label="Contexte de la situation '+(i+1)+'">';
+      ["S","T","E","So"].forEach(function(c){ html += '<button class="ch" type="button" style="--cc:var(--'+c+')" data-i="'+i+'" data-c="'+c+'" aria-pressed="'+(rep[i]===c)+'" title="Contexte '+NOMS[c]+'">'+c+' · '+NOMS[c]+'</button>'; });
+      html += '</div><div class="fb" id="fb'+i+'"></div></div>';
+    });
+    document.getElementById("items").innerHTML = html;
+    document.querySelectorAll(".ch").forEach(function(b){
+      b.addEventListener("click", function(){
+        var i = +b.dataset.i; rep[i] = (rep[i]===b.dataset.c) ? "" : b.dataset.c;
+        document.querySelectorAll('.ch[data-i="'+i+'"]').forEach(function(x){ x.setAttribute("aria-pressed", x.dataset.c===rep[i]); });
+        document.getElementById("it"+i).className = "item"; document.getElementById("fb"+i).textContent = "";
+        sauver();
+      });
+    });
+  }
+  document.getElementById("btnVerif").addEventListener("click", function(){
+    var score = 0, vides = 0;
+    DATA.forEach(function(d, i){
+      var it = document.getElementById("it"+i), fb = document.getElementById("fb"+i);
+      if (!rep[i]){ vides++; it.className = "item"; fb.textContent = "Pas encore de réponse."; return; }
+      /* Un essai ne compte que si la réponse a changé depuis la dernière vérification */
+      var ok = rep[i] === d.ans; if (ok) score++; else if (verifie[i] !== rep[i]) essais[i] = (essais[i]||0) + 1;
+      verifie[i] = rep[i];
+      it.className = "item " + (ok ? "bon" : "faux");
+      /* 1er essai faux : un indice ; ensuite, la réponse expliquée */
+      fb.textContent = ok ? "✅ " + d.expl : (essais[i] < 2 ? "❌ Pas tout à fait. Indice : " + INDICE[d.ans] : "❌ Il s'agit du contexte " + NOMS[d.ans] + ". " + d.expl);
+    });
+    var sc = document.getElementById("score"); sc.className = "score on";
+    sc.textContent = "Score : " + score + " / " + DATA.length + (vides ? " — " + vides + " situation" + (vides>1?"s":"") + " sans réponse." : score === DATA.length ? " — Parfait, tu sais décoder les 4 contextes !" : " — Corrige les situations en rouge et vérifie de nouveau.");
+    sauver();
+  });
+  document.getElementById("btnRecommencer").addEventListener("click", function(){ rep = []; essais = []; verifie = []; sauver(); rendre(); document.getElementById("score").className = "score"; });
+  rendre();
+})();
+</script>
+
+<script>window.CONFORT_LECTURE = { hote:".pbar-in", racine:"main", fonts:"https://blanchardromain-cyber.github.io/technologie-stpierre/pp4g/fonts/" };</script>
+<script src="https://blanchardromain-cyber.github.io/technologie-stpierre/assets/js/confort-lecture.js" defer></script>
+<script>window.LECTURE_IMMERSIVE = { racine:"main", hote:".pbar-in", sectionsFermees:"", classeFermeture:"" };</script>
+<script src="https://blanchardromain-cyber.github.io/technologie-stpierre/assets/js/lecture-immersive.js" defer></script>
+</body>
+</html>
