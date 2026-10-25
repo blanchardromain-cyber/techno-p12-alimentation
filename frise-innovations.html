@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P12 — La frise des innovations</title>
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   DONNÉES DE LA FRISE — chaque date a sa source.
+   Une entrée avec "annee": null ou un champ "todo" non vide n'est PAS
+   affichée aux élèves tant que la date n'est pas sourcée.
+   type : "decouverte" (phénomène mis au jour) · "invention" (objet ou
+   procédé nouveau) · "innovation" (invention adoptée sur le marché)
+   ══════════════════════════════════════════════════════════════════════ */
+var EVENEMENTS = [
+  {"id":"papin", "annee":1679, "type":"invention",
+   "titre":"Le digesteur de Denis Papin",
+   "texte":"Une marmite en fer fermée par un couvercle vissé, avec une soupape de sécurité, cuit les aliments sous pression. C'est l'ancêtre de l'autocuiseur.",
+   "pourquoi":"Un objet nouveau est conçu, mais il ne sera pas vendu aux familles à cette époque.",
+   "source":"Encyclopedia.com, « Papin, Denis » : démonstration à la Royal Society en mai 1679 — https://www.encyclopedia.com/topic/Denis_Papin.aspx"},
+  {"id":"cullen", "annee":1755, "type":"decouverte",
+   "titre":"William Cullen fabrique de la glace par évaporation",
+   "texte":"En faisant s'évaporer de l'éther sous une cloche à vide, il fait geler de l'eau : un liquide qui s'évapore absorbe de la chaleur.",
+   "pourquoi":"Un phénomène est mis au jour : l'évaporation produit du froid. C'est le principe du réfrigérateur.",
+   "source":"IIF-IIR, « A Brief History of Refrigeration » — https://efriarc.pt/wp-content/uploads/2022/09/IIR_A-Brief-History-of-Refrigeration.pdf",
+   "note":"Certaines sources datent l'expérience de 1748 (Glasgow) : à vérifier dans une source primaire."},
+  {"id":"appert", "annee":1810, "type":"invention",
+   "titre":"Nicolas Appert publie sa méthode de conservation",
+   "texte":"Des aliments enfermés dans des bocaux, puis chauffés, se conservent pendant plusieurs années.",
+   "pourquoi":"Un procédé nouveau est mis au point et publié.",
+   "source":"Wellcome Collection : « L'art de conserver pendant plusieurs années toutes les substances animales et végétales », Paris, Patris et Cie, 1810 — https://iiif.wellcomecollection.org/pdf/b22038048 ; Britannica, « Nicolas Appert »"},
+  {"id":"perkins", "annee":1834, "type":"invention",
+   "titre":"La première machine frigorifique à compression",
+   "texte":"Jacob Perkins fait breveter une machine qui comprime un fluide pour produire de la glace.",
+   "pourquoi":"Un objet nouveau est breveté, mais il n'est pas vendu à grande échelle.",
+   "source":"ASME, Landmark n° 274 « Perkins Vapor-Compression Cycle for Refrigeration » (brevet du 14 août 1834) — https://www.asme.org/About-ASME/Engineering-History/Landmarks/274-Perkins-Vapor-Compression-Cycle-for-Refrigeration"},
+  {"id":"pasteur", "annee":1865, "type":"invention",
+   "titre":"Louis Pasteur brevète le chauffage du vin",
+   "texte":"Chauffer le vin tue les microbes qui l'abîment : c'est le procédé qui deviendra la pasteurisation.",
+   "pourquoi":"Un procédé nouveau est breveté.",
+   "source":"Encyclopædia Universalis, « Pasteurisation » : « Louis Pasteur a déposé en 1865 un brevet concernant un tel traitement du vin » — https://www.universalis.fr/encyclopedie/pasteurisation/"},
+  {"id":"tellier", "annee":1876, "type":"invention",
+   "titre":"Le navire « Le Frigorifique » de Charles Tellier",
+   "texte":"Un bateau équipé de machines frigorifiques transporte de la viande entre la France et l'Argentine.",
+   "pourquoi":"L'invention fonctionne, mais l'entreprise fait faillite : elle n'est pas adoptée sur le marché.",
+   "source":"Wikipédia (en), « Charles Tellier » ; départ de Rouen le 30 septembre 1876 — https://en.wikipedia.org/wiki/Charles_Tellier"},
+  {"id":"surgeles", "annee":1930, "type":"innovation",
+   "titre":"Les premiers surgelés en magasin",
+   "texte":"Des aliments congelés très rapidement sont vendus dans des épiceries de Springfield, aux États-Unis.",
+   "pourquoi":"Le procédé de surgélation est vendu aux clients : il est adopté sur le marché.",
+   "source":"Mass Moments, « Clarence Birdseye Tests Frozen Food », 6 mars 1930 — https://massmoments.org/moment-details/clarence-birdseye-tests-frozen-food.html"},
+  {"id":"spencer", "annee":1945, "type":"decouverte",
+   "titre":"Percy Spencer et la barre chocolatée",
+   "texte":"En travaillant près d'un émetteur de micro-ondes pour les radars, il remarque que la barre chocolatée de sa poche a fondu.",
+   "pourquoi":"Un phénomène est mis au jour : les micro-ondes chauffent les aliments.",
+   "source":"National Inventors Hall of Fame, « Microwave » (brevet déposé en 1945) — https://www.invent.org/blog/inventors/microwave ; Lemelson-MIT, « Percy Spencer »"},
+  {"id":"radarange", "annee":1947, "type":"invention",
+   "titre":"Le premier four à micro-ondes",
+   "texte":"Le Radarange mesure environ 1,80 m et pèse environ 340 kg. Il équipe des restaurants et des navires, pas les cuisines des familles.",
+   "pourquoi":"Un objet nouveau est fabriqué, mais il n'est pas encore adopté par le grand public.",
+   "source":"National Inventors Hall of Fame : « Marketed in 1947 […] about 6 feet tall and weighed 750 pounds » — https://www.invent.org/blog/inventors/microwave"},
+  {"id":"microondes", "annee":1967, "type":"innovation",
+   "titre":"Le four à micro-ondes arrive dans les cuisines",
+   "texte":"Un four à micro-ondes posé sur le plan de travail est vendu aux familles.",
+   "pourquoi":"L'invention est adoptée sur le marché : c'est une innovation.",
+   "source":"National Inventors Hall of Fame et Lemelson-MIT : un four pour la maison environ 20 ans après 1947 — https://www.invent.org/blog/inventors/microwave",
+   "note":"Les sources disent « environ 20 ans après 1947 » ; certaines donnent 1966 ou 1967 : année exacte à confirmer."},
+  {"id":"frigo_foyers", "annee":null, "type":"innovation",
+   "titre":"Le réfrigérateur électrique entre dans les foyers français",
+   "texte":"", "pourquoi":"", "source":"",
+   "todo":"TODO : dater et sourcer (piste : vente massive à partir des années 1950, à confirmer par une statistique INSEE)."},
+  {"id":"autocuiseur", "annee":null, "type":"innovation",
+   "titre":"L'autocuiseur se diffuse dans les foyers",
+   "texte":"", "pourquoi":"", "source":"",
+   "todo":"TODO : dater et sourcer, sans nom de marque."},
+  {"id":"frigo_connecte", "annee":null, "type":"innovation",
+   "titre":"Le réfrigérateur connecté",
+   "texte":"", "pourquoi":"", "source":"",
+   "todo":"TODO : dater et sourcer la mise sur le marché."}
+];
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--navy:#1F3864;--blue:#2E75B6;--or:#C8611A;--vt:#1E6B3B;--rouge:#B42318;--fond:#f4f7fb;--bord:#dde5ee;--txt:#1f2430;--gris:#566070;
+        --dec:#3949AB;--inv:#C8611A;--inn:#1E6B3B}
+  *{box-sizing:border-box}
+  body{font-family:'Inter',Arial,sans-serif;margin:0;background:var(--fond);color:var(--txt);line-height:1.5;font-size:16px}
+  .pbar{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--bord)}
+  .pbar-in{max-width:980px;margin:0 auto;padding:8px 16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .pbar-in a.retour{color:var(--navy);font-weight:700;text-decoration:none;font-size:14px;margin-right:auto}
+  main{max-width:980px;margin:0 auto;padding:18px 16px 60px}
+  header.band{background:var(--navy);color:#fff;border-radius:14px;padding:20px 22px}
+  header.band .k{font-size:12px;letter-spacing:.04em;color:#bcd2ee;font-weight:600}
+  header.band h1{margin:6px 0 0;font-size:24px;line-height:1.25}
+  header.band p{margin:8px 0 0;color:#dce8f8;font-size:15px}
+  .comp{margin-top:10px;font-size:13px;color:#dce8f8}
+  section.etape{background:#fff;border:1px solid var(--bord);border-radius:14px;padding:18px 20px;margin-top:16px;border-left:6px solid var(--c1,var(--blue))}
+  section.etape > h2{margin:0 0 10px;font-size:19px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .badge{display:inline-block;border-radius:999px;padding:3px 12px;font-size:12px;font-weight:800;color:#fff;background:var(--c1,var(--blue));letter-spacing:.03em;text-transform:uppercase}
+  #question{--c1:#2E75B6} #placer,#classer{--c1:#C8611A} #conclure{--c1:#1E6B3B} #retenir{--c1:#B42318}
+  .consigne{background:#F5F8FC;border-radius:10px;padding:10px 14px;margin:8px 0 12px}
+  .defs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;font-size:14px}
+  .defs div{border-radius:10px;padding:8px 12px;border:2px solid var(--cc);background:#fff}
+  .defs b{color:var(--cc)}
+  #frise{display:block;width:100%;height:auto;background:#fff;border:1px solid var(--bord);border-radius:12px}
+  .ev{border:2px solid var(--bord);border-radius:12px;padding:10px 12px;margin-top:8px;display:grid;grid-template-columns:auto 1fr;gap:4px 10px;align-items:start}
+  .ev.bon{border-color:var(--vt);background:#F3FAF5} .ev.faux{border-color:var(--rouge);background:#FFF6F5}
+  .pastille{width:30px;height:30px;border-radius:50%;background:var(--navy);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:14px}
+  .ev h3{margin:0;font-size:16px}
+  .ev p{margin:2px 0 6px;font-size:15px}
+  .an{font-weight:800;color:var(--navy);font-variant-numeric:tabular-nums}
+  select{font:inherit;font-size:16px;border:2px solid var(--bord);border-radius:8px;padding:6px 8px;background:#fff;max-width:100%}
+  .choix{display:flex;gap:6px;flex-wrap:wrap}
+  .ch{font:inherit;font-size:14px;font-weight:700;border-radius:999px;padding:6px 12px;cursor:pointer;background:#fff;border:2px solid var(--cc);color:var(--cc)}
+  .ch[aria-pressed="true"]{background:var(--cc);color:#fff}
+  .ch:focus-visible,.btn:focus-visible,select:focus-visible{outline:3px solid #F2B705;outline-offset:2px}
+  .fb{grid-column:2;font-size:14px}
+  .src{grid-column:2;font-size:12px;color:var(--gris)}
+  .src summary{cursor:pointer}
+  .btn{font:inherit;font-size:15px;font-weight:700;border:none;border-radius:10px;padding:10px 18px;cursor:pointer;background:var(--navy);color:#fff}
+  .btn.sec{background:#fff;color:var(--navy);border:2px solid var(--navy)}
+  .rang{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+  .msg{margin-top:10px;border-radius:10px;padding:10px 14px;display:none}
+  .msg.on{display:block;background:#EEF3FA}
+  textarea{font:inherit;font-size:16px;width:100%;border:2px solid var(--bord);border-radius:8px;padding:8px 10px;resize:vertical}
+  .retenir{background:#FFF4F2;border-radius:10px;padding:12px 16px}
+  .footer{color:var(--gris);font-size:12px;text-align:center;margin-top:28px}
+  @media (max-width:640px){ .defs{grid-template-columns:1fr} header.band h1{font-size:21px} section.etape{padding:14px} }
+  @media (min-width:1400px){ body{font-size:18px} main,.pbar-in{max-width:1200px} }
+  @media print{ .pbar,.btn,.rang{display:none!important} body{background:#fff} section.etape{break-inside:avoid;border:1px solid #999} .src{display:none} }
+</style>
+</head>
+<body>
+<div class="pbar"><div class="pbar-in">
+  <a class="retour" href="./index.html">&larr; Séquence P12</a>
+  <button class="btn sec" type="button" id="btnRecommencer">Recommencer</button>
+  <button class="btn sec" type="button" onclick="window.print()">Imprimer</button>
+</div></div>
+<main>
+  <header class="band">
+    <div class="k">TECHNOLOGIE · 4ᵉ · Séquence P12 · Activité 2</div>
+    <h1>La frise des innovations</h1>
+    <p>Conserver et cuire les aliments : de la marmite de Papin au four à micro-ondes</p>
+    <div class="comp"><strong>Compétence :</strong> Décrire les liens entre usages et évolutions technologiques des objets et des systèmes techniques · <strong>CPS travaillée :</strong> Coopérer en binôme · non noté</div>
+  </header>
+
+  <section class="etape" id="question">
+    <h2><span class="badge">1 · La question</span></h2>
+    <p style="margin:0">Un objet technique naît-il d'un seul coup ? Qu'est-ce qui distingue une <strong>découverte</strong>, une <strong>invention</strong> et une <strong>innovation</strong> ?</p>
+    <div class="defs" style="margin-top:12px">
+      <div style="--cc:var(--dec)"><b>Découverte</b> : un phénomène est mis au jour.</div>
+      <div style="--cc:var(--inv)"><b>Invention</b> : un objet ou un procédé nouveau est créé.</div>
+      <div style="--cc:var(--inn)"><b>Innovation</b> : une invention est adoptée sur le marché.</div>
+    </div>
+  </section>
+
+  <section class="etape" id="placer">
+    <h2><span class="badge">2 · J'investigue</span> Je place les événements sur la frise</h2>
+    <p class="consigne" data-consigne>Pour chaque événement, choisis le <strong>siècle</strong> qui correspond à sa date. Rappel : 1810 appartient au XIXᵉ siècle (de 1801 à 1900).</p>
+    <svg id="frise" viewBox="0 0 1000 170" role="img" aria-label="Frise chronologique de 1650 à 2000"></svg>
+    <div id="liste1"></div>
+    <div class="rang"><button class="btn" type="button" id="btnPlacer">Vérifier mes placements</button></div>
+    <div class="msg" id="msg1" role="status" aria-live="polite"></div>
+  </section>
+
+  <section class="etape" id="classer">
+    <h2><span class="badge">2 · J'investigue</span> Découverte, invention ou innovation ?</h2>
+    <p class="consigne" data-consigne>Classe chaque événement, puis vérifie. Au premier essai faux, tu reçois une question pour t'aider ; ensuite, l'explication.</p>
+    <div id="liste2"></div>
+    <div class="rang"><button class="btn" type="button" id="btnClasser">Vérifier mon classement</button></div>
+    <div class="msg" id="msg2" role="status" aria-live="polite"></div>
+  </section>
+
+  <section class="etape" id="conclure">
+    <h2><span class="badge">3 · Je conclus</span></h2>
+    <p class="consigne" data-consigne>Combien de temps s'est-il écoulé entre la découverte de Percy Spencer et l'arrivée du four à micro-ondes dans les cuisines ? Qu'en conclus-tu ?</p>
+    <textarea id="concl" rows="3" placeholder="Il s'est écoulé… On en conclut que…"></textarea>
+    <div class="rang"><button class="btn" type="button" id="btnConcl">Comparer avec la réponse attendue</button></div>
+    <div class="msg" id="msg3" role="status" aria-live="polite"></div>
+  </section>
+
+  <section class="etape" id="retenir">
+    <h2><span class="badge">4 · Je retiens</span></h2>
+    <div class="retenir">Une <strong>découverte</strong> met au jour un phénomène. Une <strong>invention</strong> crée un objet ou un procédé nouveau. Une <strong>innovation</strong> est une invention <strong>adoptée sur le marché</strong>. Toutes les inventions ne deviennent pas des innovations, et le passage de l'une à l'autre peut prendre des dizaines d'années.</div>
+  </section>
+  <div class="footer">Collège Saint Pierre – Les Essarts · Séquence P12</div>
+</main>
+<script>
+(function(){
+  "use strict";
+  var CLE = "p12_frise_v1";
+  var EV = EVENEMENTS.filter(function(e){ return e.annee && !e.todo; }).sort(function(a, b){ return a.annee - b.annee; });
+  var $ = function(id){ return document.getElementById(id); };
+  function norm(s){ return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g," ").trim(); }
+  var SIECLES = [["17","XVIIᵉ siècle (1601-1700)"],["18","XVIIIᵉ siècle (1701-1800)"],["19","XIXᵉ siècle (1801-1900)"],["20","XXᵉ siècle (1901-2000)"]];
+  function siecle(a){ return String(Math.floor((a - 1) / 100) + 1); }
+  var TYPES = {decouverte:["Découverte","var(--dec)"], invention:["Invention","var(--inv)"], innovation:["Innovation","var(--inn)"]};
+  var HEX = {decouverte:"#3949AB", invention:"#C8611A", innovation:"#1E6B3B"};
+  var QUESTION = {decouverte:"A-t-on fabriqué un objet, ou seulement observé un phénomène ?",
+                  invention:"L'objet ou le procédé est nouveau : a-t-il été adopté par de nombreux clients ?",
+                  innovation:"L'objet a-t-il été acheté et utilisé par beaucoup de gens ?"};
+  /* L'ordre d'affichage mélange les événements (sinon la frise donnerait l'ordre) */
+  var ORDRE = EV.map(function(_, i){ return i; }).sort(function(a, b){ return ((a * 7 + 3) % EV.length) - ((b * 7 + 3) % EV.length); });
+
+  var etat = {s:{}, t:{}, essais:{}, verifT:{}, place:{}, concl:""};
+  try{ var sv = JSON.parse(localStorage.getItem(CLE)||"null"); if (sv && sv.s) etat = Object.assign(etat, sv); }catch(e){}
+  function sauver(){ try{ localStorage.setItem(CLE, JSON.stringify(etat)); }catch(e){} }
+
+  function x(an){ return 40 + (an - 1650) / 350 * 920; }
+  function dessinerFrise(){
+    var s = '<line x1="40" y1="85" x2="968" y2="85" stroke="#1F3864" stroke-width="3"/><path d="M968,78 L982,85 L968,92 z" fill="#1F3864"/>';
+    for (var a = 1650; a <= 2000; a += 50){
+      s += '<line x1="'+x(a)+'" y1="78" x2="'+x(a)+'" y2="92" stroke="#1F3864" stroke-width="2"/>' +
+           '<text x="'+x(a)+'" y="110" text-anchor="middle" font-size="15" font-family="Inter,Arial" fill="#566070">'+a+'</text>';
+    }
+    var niveaux = [];
+    EV.forEach(function(e, i){
+      if (!etat.place[e.id]) return;
+      var px = x(e.annee), n = 0;
+      while (niveaux.some(function(v){ return v.n === n && Math.abs(v.x - px) < 34; })) n++;
+      niveaux.push({x:px, n:n});
+      /* Le numéro prend la couleur de son type une fois bien classé */
+      var y = 60 - n * 30, coul = etat.t[e.id] === e.type && etat.verifT[e.id] === e.type ? HEX[e.type] : "#1F3864";
+      s += '<line x1="'+px+'" y1="'+(y+12)+'" x2="'+px+'" y2="85" stroke="'+coul+'" stroke-width="2"/>' +
+           '<circle cx="'+px+'" cy="'+y+'" r="13" fill="'+coul+'"/><text x="'+px+'" y="'+(y+5)+'" text-anchor="middle" font-size="14" font-weight="800" fill="#fff" font-family="Inter,Arial">'+(i+1)+'</text>';
+    });
+    $("frise").innerHTML = s + '<text x="40" y="150" font-size="14" fill="#566070" font-family="Inter,Arial">Chaque événement bien placé apparaît sur la frise avec son numéro.</text>';
+  }
+
+  function carte(e, i, corps){
+    return '<div class="ev" id="'+corps+'-'+e.id+'"><div class="pastille">'+(i+1)+'</div><div><h3><span class="an">'+e.annee+'</span> · '+e.titre+'</h3><p>'+e.texte+'</p>';
+  }
+  function rendre(){
+    var h1 = "", h2 = "";
+    ORDRE.forEach(function(k){
+      var e = EV[k], i = k;
+      h1 += carte(e, i, "p") + '<label>Siècle : <select data-id="'+e.id+'" aria-label="Siècle de l\'événement '+(i+1)+'"><option value="">— Choisir —</option>' +
+        SIECLES.map(function(s){ return '<option value="'+s[0]+'"'+(etat.s[e.id]===s[0]?" selected":"")+'>'+s[1]+'</option>'; }).join("") + '</select></label></div>' +
+        '<div class="fb" id="fbp-'+e.id+'"></div>' +
+        '<details class="src"><summary>Source</summary>'+e.source+(e.note ? '<br><em>'+e.note+'</em>' : '')+'</details></div>';
+      h2 += carte(e, i, "c") + '<div class="choix" role="group" aria-label="Type de l\'événement '+(i+1)+'">' +
+        Object.keys(TYPES).map(function(t){ return '<button class="ch" type="button" style="--cc:'+TYPES[t][1]+'" data-id="'+e.id+'" data-t="'+t+'" aria-pressed="'+(etat.t[e.id]===t)+'">'+TYPES[t][0]+'</button>'; }).join("") +
+        '</div></div><div class="fb" id="fbc-'+e.id+'"></div></div>';
+    });
+    $("liste1").innerHTML = h1; $("liste2").innerHTML = h2;
+    document.querySelectorAll("#liste1 select").forEach(function(s){
+      s.addEventListener("change", function(){ etat.s[s.dataset.id] = s.value; $("p-"+s.dataset.id).className = "ev"; $("fbp-"+s.dataset.id).textContent = ""; sauver(); });
+    });
+    document.querySelectorAll("#liste2 .ch").forEach(function(b){
+      b.addEventListener("click", function(){
+        var id = b.dataset.id; etat.t[id] = (etat.t[id] === b.dataset.t) ? "" : b.dataset.t;
+        document.querySelectorAll('#liste2 .ch[data-id="'+id+'"]').forEach(function(x){ x.setAttribute("aria-pressed", x.dataset.t === etat.t[id]); });
+        $("c-"+id).className = "ev"; $("fbc-"+id).textContent = ""; sauver();
+      });
+    });
+    dessinerFrise();
+  }
+
+  $("btnPlacer").addEventListener("click", function(){
+    var justes = 0;
+    EV.forEach(function(e){
+      var v = etat.s[e.id], ok = v === siecle(e.annee), fb = $("fbp-"+e.id);
+      $("p-"+e.id).className = "ev " + (v ? (ok ? "bon" : "faux") : "");
+      etat.place[e.id] = ok; if (ok) justes++;
+      fb.textContent = !v ? "Pas encore de réponse." : ok ? "✅ Bien placé." : "❌ " + e.annee + " : regarde les deux premiers chiffres, puis ajoute 1 (sauf pour une année ronde comme 1900).";
+    });
+    var m = $("msg1"); m.className = "msg on";
+    m.textContent = justes + " / " + EV.length + " événements bien placés." + (justes === EV.length ? " Bravo, la frise est complète !" : "");
+    dessinerFrise(); sauver();
+  });
+
+  $("btnClasser").addEventListener("click", function(){
+    var justes = 0;
+    EV.forEach(function(e){
+      var v = etat.t[e.id], fb = $("fbc-"+e.id);
+      if (!v){ $("c-"+e.id).className = "ev"; fb.textContent = "Pas encore de réponse."; return; }
+      var ok = v === e.type; if (ok) justes++;
+      /* Un essai ne compte que si la réponse a changé depuis la dernière vérification */
+      if (!ok && etat.verifT[e.id] !== v) etat.essais[e.id] = (etat.essais[e.id] || 0) + 1;
+      etat.verifT[e.id] = v;
+      $("c-"+e.id).className = "ev " + (ok ? "bon" : "faux");
+      fb.textContent = ok ? "✅ " + TYPES[e.type][0] + " : " + e.pourquoi
+        : (etat.essais[e.id] < 2 ? "❌ Une question pour t'aider : " + QUESTION[e.type] : "❌ C'est une " + TYPES[e.type][0].toLowerCase() + " : " + e.pourquoi);
+    });
+    var m = $("msg2"); m.className = "msg on";
+    m.textContent = justes + " / " + EV.length + " bien classés." + (justes === EV.length ? " Bravo ! Les numéros de la frise prennent la couleur de leur type." : "");
+    dessinerFrise(); sauver();
+  });
+
+  $("concl").value = etat.concl;
+  $("concl").addEventListener("input", function(){ etat.concl = this.value; sauver(); });
+  $("btnConcl").addEventListener("click", function(){
+    var t = norm(etat.concl), m = $("msg3"); m.className = "msg on";
+    m.innerHTML = (/\b2[0-9]\b|vingt/.test(t) ? "Bien, tu as calculé la durée. " : "Calcule d'abord la durée : 1967 − 1945. ") +
+      "<br><strong>Réponse attendue :</strong> environ <strong>22 ans</strong> séparent la découverte (1945) de l'innovation (le four dans les cuisines, vers 1967). Entre les deux, l'invention de 1947 était trop grande et trop chère pour les familles : une invention ne devient une innovation que lorsqu'elle est adoptée sur le marché.";
+  });
+
+  $("btnRecommencer").addEventListener("click", function(){
+    if (!confirm("Effacer ce que tu as fait sur cette page ?")) return;
+    etat = {s:{}, t:{}, essais:{}, verifT:{}, place:{}, concl:""}; sauver(); $("concl").value = ""; ["msg1","msg2","msg3"].forEach(function(id){ $(id).className = "msg"; }); rendre();
+  });
+  rendre();
+})();
+</script>
+<script>window.CONFORT_LECTURE = { hote:".pbar-in", racine:"main", fonts:"https://blanchardromain-cyber.github.io/technologie-stpierre/pp4g/fonts/" };</script>
+<script src="https://blanchardromain-cyber.github.io/technologie-stpierre/assets/js/confort-lecture.js" defer></script>
+<script>window.LECTURE_IMMERSIVE = { racine:"main", hote:".pbar-in", sectionsFermees:"", classeFermeture:"" };</script>
+<script src="https://blanchardromain-cyber.github.io/technologie-stpierre/assets/js/lecture-immersive.js" defer></script>
+</body>
+</html>
