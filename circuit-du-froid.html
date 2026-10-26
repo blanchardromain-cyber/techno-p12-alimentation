@@ -24,7 +24,9 @@
   section.etape{background:#fff;border:1px solid var(--bord);border-radius:14px;padding:18px 20px;margin-top:16px;border-left:6px solid var(--c1,var(--blue))}
   section.etape > h2{margin:0 0 10px;font-size:19px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
   .badge{display:inline-block;border-radius:999px;padding:3px 12px;font-size:12px;font-weight:800;color:#fff;background:var(--c1,var(--blue));letter-spacing:.03em;text-transform:uppercase}
-  #question{--c1:var(--q)} #hypothese{--c1:var(--h)} #experience,#circuit,#associer{--c1:var(--i)} #conclure{--c1:var(--c)} #retenir{--c1:var(--r)}
+  .phys{background:#F7F9FC;border:1px solid var(--bord);border-radius:12px;padding:12px 14px}
+  #seringue{display:block;width:100%;max-width:520px;height:auto;margin:0 auto}
+  #question{--c1:var(--q)} #hypothese{--c1:var(--h)} #experience,#circuit,#physique,#associer{--c1:var(--i)} #conclure{--c1:var(--c)} #retenir{--c1:var(--r)}
   .consigne{background:#F5F8FC;border-radius:10px;padding:10px 14px;margin:8px 0 12px}
   .btn{font:inherit;font-size:15px;font-weight:700;border:none;border-radius:10px;padding:10px 18px;cursor:pointer;background:var(--navy);color:#fff}
   .btn:hover{filter:brightness(1.12)} .btn:disabled{opacity:.45;cursor:not-allowed}
@@ -113,47 +115,65 @@
 
   <section class="etape" id="circuit">
     <h2><span class="badge">3 · J'investigue</span> Je suis le fluide frigorigène</h2>
-    <p class="consigne" data-consigne>Dans le réfrigérateur, un liquide, le <strong>fluide frigorigène</strong>, circule en boucle fermée. Clique sur « Étape suivante » pour le suivre organe par organe.</p>
+    <p class="consigne" data-consigne>Dans le réfrigérateur, un liquide, le <strong>fluide frigorigène</strong>, circule en boucle fermée. Le réfrigérateur est vu en coupe, de profil : la porte est à gauche, le dos à droite. Clique sur « Étape suivante » pour suivre le fluide organe par organe. Les numéros sont ceux de ta fiche.</p>
     <div class="scene">
-      <svg id="schema" viewBox="0 0 440 300" role="img" aria-label="Schéma du circuit frigorifique : évaporateur à l'intérieur, compresseur, condenseur à l'extérieur, capillaire">
+      <svg id="schema" viewBox="0 0 460 430" role="img" aria-label="Réfrigérateur vu en coupe : 1 condenseur à l'arrière, 2 compresseur en bas, 3 évaporateur en haut à l'intérieur, 4 thermostat, 5 capillaire, 6 fluide frigorigène">
         <defs>
-          <marker id="fl" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#566070"/></marker>
+          <marker id="fl" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1E6B3B"/></marker>
           <marker id="flR" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#C0392B"/></marker>
         </defs>
-        <!-- Intérieur / extérieur -->
-        <rect x="12" y="52" width="168" height="200" rx="10" fill="#EAF4FF" stroke="#2E75B6" stroke-width="2"/>
-        <text x="20" y="84" font-size="12" font-weight="700" fill="#1F3864">Intérieur</text>
-        <text x="20" y="99" font-size="12" font-weight="700" fill="#1F3864">du frigo</text>
-        <rect x="282" y="52" width="150" height="200" rx="10" fill="#FFF3EC" stroke="#C8611A" stroke-width="2" stroke-dasharray="6 4"/>
-        <text x="426" y="84" text-anchor="end" font-size="12" font-weight="700" fill="#8A3E0F">Extérieur</text>
-        <text x="426" y="99" text-anchor="end" font-size="12" font-weight="700" fill="#8A3E0F">(cuisine)</text>
-        <!-- Aliments -->
-        <text x="40" y="236" font-size="22" aria-hidden="true">🥕🧀</text>
+        <!-- Caisse du réfrigérateur vue de profil, en coupe (porte à gauche, dos à droite) -->
+        <rect x="40" y="20" width="270" height="380" rx="8" fill="#F4F7FA" stroke="#4A5562" stroke-width="2.5"/>
+        <rect x="40" y="20" width="18" height="300" rx="4" fill="#DCE3EA" stroke="#4A5562" stroke-width="1.5"/>
+        <text x="49" y="175" font-size="10" fill="#4A5562" transform="rotate(-90 49 175)" text-anchor="middle">porte</text>
+        <rect x="70" y="36" width="210" height="282" fill="#EAF4FF" stroke="#9DB8D6" stroke-width="1.5"/>
+        <text x="76" y="312" font-size="10" fill="#1F3864">intérieur du réfrigérateur</text>
+        <!-- Clayettes et aliments -->
+        <line x1="70" y1="150" x2="280" y2="150" stroke="#9DB8D6" stroke-width="3"/>
+        <line x1="70" y1="235" x2="280" y2="235" stroke="#9DB8D6" stroke-width="3"/>
+        <text x="84" y="145" font-size="20" aria-hidden="true">🧀🥚</text>
+        <text x="84" y="230" font-size="20" aria-hidden="true">🥕🥩</text>
+        <text x="84" y="296" font-size="20" aria-hidden="true">🥬</text>
+        <!-- Compartiment du moteur, en bas à l'arrière -->
+        <rect x="190" y="330" width="112" height="62" rx="4" fill="#E6EBF0" stroke="#9AA6B2" stroke-width="1.5"/>
+        <!-- Air de la cuisine, derrière le réfrigérateur -->
+        <text x="452" y="372" text-anchor="end" font-size="11" fill="#8A3E0F">air de la cuisine</text>
         <!-- Échanges de chaleur -->
-        <path id="chaleurIn" d="M70,212 C80,196 92,206 104,190" fill="none" stroke="#C0392B" stroke-width="2.5" marker-end="url(#flR)" opacity="0"/>
-        <path id="chaleurOut" d="M372,150 C384,138 396,158 412,140" fill="none" stroke="#C0392B" stroke-width="2.5" marker-end="url(#flR)" opacity="0"/>
-        <!-- Tuyaux du circuit (couleur = état du fluide) -->
-        <path d="M120,226 V272 H190" fill="none" stroke="#7FB3E6" stroke-width="5"/>
-        <path d="M250,272 H340 V226" fill="none" stroke="#D9473A" stroke-width="5"/>
-        <path d="M340,96 V36 H262" fill="none" stroke="#E8913A" stroke-width="5"/>
-        <path d="M178,36 H120 V96" fill="none" stroke="#2E75B6" stroke-width="5"/>
-        <!-- Chemin suivi par la goutte de fluide (invisible) -->
-        <path id="chemin" d="M120,96 L120,226 L120,272 L220,272 L340,272 L340,226 L340,96 L340,36 L220,36 L120,36 L120,96" fill="none" stroke="none"/>
-        <!-- Organes -->
-        <g class="organe" id="o-evap"><path class="forme" d="M120,96 h24 v14 h-48 v14 h48 v14 h-48 v14 h48 v14 h-48 v14 h48 v14 h-48 v14 h24 v8" fill="none" stroke="#2E75B6" stroke-width="4" stroke-linejoin="round"/>
-          <text x="128" y="246" font-size="12" font-weight="700" fill="#1F3864">évaporateur</text></g>
-        <g class="organe" id="o-comp"><rect class="forme" x="176" y="256" width="88" height="32" rx="8" fill="#D5DCE3" stroke="#4A5562" stroke-width="2.5"/>
-          <text x="220" y="276" text-anchor="middle" font-size="11" font-weight="700" fill="#1f2430">compresseur</text></g>
-        <g class="organe" id="o-cond"><path class="forme" d="M340,226 h20 v-14 h-40 v-14 h40 v-14 h-40 v-14 h40 v-14 h-40 v-14 h40 v-14 h-40 v-14 h40 v-14 h-20 v-10" fill="none" stroke="#C0392B" stroke-width="4" stroke-linejoin="round"/>
-          <text x="388" y="246" text-anchor="middle" font-size="12" font-weight="700" fill="#8A3E0F">condenseur</text></g>
-        <g class="organe" id="o-capi"><path class="forme" d="M262,36 c-4,-10 -12,-10 -12,0 c0,10 -8,10 -12,0 c-4,-10 -12,-10 -12,0 c0,10 -8,10 -12,0 c-4,-10 -12,-10 -12,0 h-24" fill="none" stroke="#E8913A" stroke-width="3"/>
-          <text x="220" y="18" text-anchor="middle" font-size="12" font-weight="700" fill="#8A3E0F">capillaire</text></g>
-        <g class="organe" id="o-thermo"><rect class="forme" x="26" y="122" width="40" height="28" rx="5" fill="#fff" stroke="#1E6B3B" stroke-width="2.5"/>
-          <text x="46" y="141" text-anchor="middle" font-size="12" font-weight="800" fill="#1E6B3B">T °C</text>
-          <text x="46" y="164" text-anchor="middle" font-size="11" font-weight="700" fill="#1E6B3B">thermostat</text></g>
-        <path id="signal" d="M46,150 V190 Q46,262 186,268" fill="none" stroke="#1E6B3B" stroke-width="1.8" stroke-dasharray="4 4" marker-end="url(#fl)"/>
+        <path id="chaleurIn" d="M160,140 C150,126 170,118 160,100" fill="none" stroke="#C0392B" stroke-width="2.5" marker-end="url(#flR)" opacity="0"/>
+        <path id="chaleurOut" d="M362,250 C376,240 386,262 404,248" fill="none" stroke="#C0392B" stroke-width="2.5" marker-end="url(#flR)" opacity="0"/>
+        <path d="M362,290 C376,280 386,302 404,288" fill="none" stroke="#C0392B" stroke-width="2.5" marker-end="url(#flR)" opacity="0" class="chaleurOut2"/>
+        <!-- Tuyaux (couleur = état du fluide) -->
+        <path d="M255,88 H292 V360 H282" fill="none" stroke="#7FB3E6" stroke-width="5"/>
+        <path d="M282,376 H330 V332" fill="none" stroke="#D9473A" stroke-width="5"/>
+        <path d="M337,58 V30 H300" fill="none" stroke="#E8913A" stroke-width="4"/>
+        <path d="M250,30 V50" fill="none" stroke="#2E75B6" stroke-width="4"/>
+        <!-- 1 Condenseur : grille à l'arrière, dans l'air de la cuisine -->
+        <g class="organe" id="o-cond"><path class="forme" d="M330,332 V320 H352 V295 H322 V270 H352 V245 H322 V220 H352 V195 H322 V170 H352 V145 H322 V120 H352 V95 H322 V70 H337 V58" fill="none" stroke="#C0392B" stroke-width="3.5" stroke-linejoin="round"/>
+          <circle cx="372" cy="196" r="11" fill="#1F3864"/><text x="372" y="201" text-anchor="middle" font-size="13" font-weight="800" fill="#fff">1</text>
+          <text x="388" y="201" font-size="12" font-weight="700" fill="#8A3E0F">condenseur</text></g>
+        <!-- 2 Compresseur -->
+        <g class="organe" id="o-comp"><rect class="forme" x="218" y="350" width="64" height="34" rx="14" fill="#8E9AA6" stroke="#4A5562" stroke-width="2.5"/>
+          <circle cx="236" cy="414" r="11" fill="#1F3864"/><text x="236" y="419" text-anchor="middle" font-size="13" font-weight="800" fill="#fff">2</text>
+          <text x="252" y="419" font-size="12" font-weight="700" fill="#1f2430">compresseur</text></g>
+        <!-- 3 Évaporateur : en haut, à l'intérieur -->
+        <g class="organe" id="o-evap"><path class="forme" d="M250,50 V52 H95 V64 H260 V76 H95 V88 H255" fill="none" stroke="#2E75B6" stroke-width="3.5" stroke-linejoin="round"/>
+          <circle cx="104" cy="110" r="11" fill="#1F3864"/><text x="104" y="115" text-anchor="middle" font-size="13" font-weight="800" fill="#fff">3</text>
+          <text x="120" y="115" font-size="12" font-weight="700" fill="#1F3864">évaporateur</text></g>
+        <!-- 4 Thermostat : sur la paroi intérieure -->
+        <g class="organe" id="o-thermo"><rect class="forme" x="246" y="176" width="30" height="22" rx="4" fill="#fff" stroke="#1E6B3B" stroke-width="2.5"/>
+          <text x="261" y="191" text-anchor="middle" font-size="9" font-weight="800" fill="#1E6B3B">T°C</text>
+          <circle cx="232" cy="187" r="11" fill="#1F3864"/><text x="232" y="192" text-anchor="middle" font-size="13" font-weight="800" fill="#fff">4</text>
+          <text x="218" y="192" text-anchor="end" font-size="12" font-weight="700" fill="#1E6B3B">thermostat</text></g>
+        <!-- 5 Capillaire : tube très fin entre le haut du condenseur et l'évaporateur -->
+        <g class="organe" id="o-capi"><path class="forme" d="M300,30 c-3,-7 -8,-7 -8,0 c0,7 -5,7 -8,0 c-3,-7 -8,-7 -8,0 c0,7 -5,7 -8,0 c-3,-7 -8,-7 -8,0 c0,7 -5,7 -8,0 h-2" fill="none" stroke="#E8913A" stroke-width="2.2"/>
+          <circle cx="262" cy="11" r="10" fill="#1F3864"/><text x="262" y="15" text-anchor="middle" font-size="12" font-weight="800" fill="#fff">5</text>
+          <text x="276" y="15" font-size="12" font-weight="700" fill="#8A3E0F">capillaire</text></g>
+        <!-- 6 Fluide frigorigène : circule dans tous les tuyaux -->
+        <g class="organe" id="o-fluide"><rect class="forme" x="286" y="238" width="12" height="24" rx="3" fill="none" stroke="none"/>
+          <circle cx="292" cy="250" r="11" fill="#1F3864"/><text x="292" y="255" text-anchor="middle" font-size="13" font-weight="800" fill="#fff">6</text>
+          <text x="276" y="255" text-anchor="end" font-size="11" font-weight="700" fill="#1F3864">fluide frigorigène</text></g>
         <!-- La goutte de fluide -->
-        <circle id="goutte" r="8" cx="120" cy="96" fill="#2E75B6" stroke="#fff" stroke-width="2.5"/>
+        <circle id="goutte" r="7" cx="250" cy="52" fill="#2E75B6" stroke="#fff" stroke-width="2.5"/>
       </svg>
       <div class="explic" aria-live="polite">
         <h3 id="exTitre">Prêt ?</h3>
@@ -168,10 +188,34 @@
     </div>
   </section>
 
+  <section class="etape" id="physique">
+    <h2><span class="badge">3 · J'investigue</span> La physique du réfrigérateur : comprimer et détendre</h2>
+    <p class="consigne" data-consigne>Une seringue bouchée contient un gaz. Déplace le piston : que deviennent les particules de gaz et la température ?</p>
+    <div class="phys">
+      <svg id="seringue" viewBox="0 0 420 150" role="img" aria-label="Seringue bouchée remplie de gaz, avec un piston mobile">
+        <rect x="30" y="40" width="300" height="70" rx="8" fill="#F7FAFC" stroke="#4A5562" stroke-width="3"/>
+        <rect x="18" y="58" width="14" height="34" rx="3" fill="#4A5562"/>
+        <g id="particules"></g>
+        <!-- Piston : tête dans le corps de la seringue, tige et poignée vers la droite -->
+        <g id="piston"><rect x="0" y="44" width="10" height="62" rx="3" fill="#4A5562"/><rect x="10" y="70" width="100" height="10" fill="#8E9AA6"/><rect x="108" y="50" width="12" height="50" rx="3" fill="#4A5562"/></g>
+        <text x="18" y="138" font-size="12" fill="#566070">bouchon</text>
+        <text id="thermo" x="400" y="26" text-anchor="end" font-size="22" font-weight="800" fill="#1F3864">20 °C</text>
+        <text x="400" y="138" text-anchor="end" font-size="11" fill="#566070">température indicative</text>
+      </svg>
+      <label for="piston-pos" style="display:block;font-weight:700;margin-top:6px">Position du piston :</label>
+      <input type="range" id="piston-pos" min="-100" max="100" value="0" style="width:100%" aria-describedby="phys-msg">
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--gris)"><span>← je détends</span><span>je comprime →</span></div>
+      <p id="phys-msg" aria-live="polite" style="margin:8px 0 0"></p>
+    </div>
+    <div class="retenir" style="margin-top:10px;font-size:15px">
+      <strong>Dans le réfrigérateur :</strong> le <strong>compresseur (n° 2)</strong> comprime le gaz, qui s'échauffe ; le <strong>condenseur (n° 1)</strong> rejette cette chaleur dans la cuisine. Le <strong>capillaire (n° 5)</strong> détend le fluide, qui se refroidit ; dans l'<strong>évaporateur (n° 3)</strong>, il prend alors la chaleur des aliments.
+    </div>
+  </section>
+
   <section class="etape" id="associer">
     <h2><span class="badge">3 · J'investigue</span> Chaque organe a sa fonction technique</h2>
-    <p class="consigne" data-consigne>Pour chaque solution technique, choisis la fonction technique qu'elle réalise.</p>
-    <div class="tab-wrap"><table class="assoc" id="tabAssoc"><thead><tr><th>Solution technique</th><th>Fonction technique</th></tr></thead><tbody></tbody></table></div>
+    <p class="consigne" data-consigne>Les numéros sont ceux du schéma et de ta fiche. Pour chaque solution technique, choisis la fonction technique qu'elle réalise, puis recopie le tableau et complète le schéma du verso de ta fiche.</p>
+    <div class="tab-wrap"><table class="assoc" id="tabAssoc"><thead><tr><th>Solution technique (n° du schéma)</th><th>Fonction technique</th></tr></thead><tbody></tbody></table></div>
     <div class="rang"><button class="btn" type="button" id="btnAssoc">Vérifier</button></div>
     <div class="retour-msg" id="assocMsg" role="status" aria-live="polite"></div>
   </section>
@@ -215,25 +259,28 @@
     {n:"FT5", ft:"Détendre le fluide", st:"Capillaire", pourquoi:"Le capillaire, tube très fin, fait chuter la pression : le fluide devient très froid."},
     {n:"FT6", ft:"Transporter la chaleur", st:"Fluide frigorigène", pourquoi:"Le fluide circule en boucle et emporte la chaleur de l'intérieur vers l'extérieur."}
   ];
-  var ORDRE_ST = [2, 1, 0, 4, 3, 5];  /* ordre d'affichage des solutions, différent de l'ordre des FT */
+  /* Les solutions s'affichent avec leur numéro de la fiche (1 condenseur … 6 fluide) ;
+     les fonctions proposées sont mélangées, pour que le numéro ne donne pas la réponse */
+  var ORDRE_ST = [0, 1, 2, 3, 4, 5];
+  var ORDRE_FT = [3, 0, 5, 2, 4, 1];
 
   var ETAPES = [
-    {o:"o-evap",  d:1,   titre:"1. L'évaporateur", etat:["liquide très froid → gaz","#DDEBFA","#1F3864"],
-     txt:"Le fluide arrive très froid. Il s'évapore et absorbe la chaleur des aliments : l'intérieur se refroidit.", in:true},
-    {o:"o-comp",  d:4,   titre:"2. Le compresseur", etat:["gaz froid → gaz chaud","#FBE3DE","#8A1C10"],
-     txt:"Le compresseur aspire le gaz et le comprime : sa pression et sa température montent. C'est lui qui consomme l'énergie électrique."},
-    {o:"o-cond",  d:7,   titre:"3. Le condenseur", etat:["gaz chaud → liquide tiède","#FDEBD9","#8A3E0F"],
-     txt:"À l'arrière du réfrigérateur, le gaz chaud cède sa chaleur à l'air de la cuisine et redevient liquide. Touche l'arrière d'un frigo : il est tiède !", out:true},
-    {o:"o-capi",  d:10,  titre:"4. Le capillaire", etat:["liquide tiède → liquide très froid","#DDEBFA","#1F3864"],
-     txt:"Le capillaire est un tube très fin : il détend le fluide. Sa pression chute et il devient très froid, prêt à repartir dans l'évaporateur."},
-    {o:"o-thermo",d:1,   titre:"5. Le thermostat", etat:["information","#E3F4E8","#1E6B3B"],
-     txt:"Le thermostat mesure la température à l'intérieur. Quand il fait trop chaud, il déclenche le compresseur ; quand c'est assez froid, il l'arrête."},
-    {o:null,      d:1,   titre:"6. Le fluide frigorigène", etat:["boucle fermée","#EEF3FA","#1F3864"],
-     txt:"Le fluide fait le tour du circuit sans jamais en sortir : il transporte la chaleur de l'intérieur vers l'extérieur. Le frigo ne fabrique pas de froid !", in:true, out:true}
+    {o:"o-evap",  d:1,   titre:"Étape 1 — L'évaporateur (n° 3)", etat:["liquide très froid → gaz","#DDEBFA","#1F3864"],
+     txt:"En haut, à l'intérieur du réfrigérateur. Le fluide arrive très froid : il s'évapore et absorbe la chaleur des aliments. L'intérieur se refroidit.", in:true},
+    {o:"o-comp",  d:6,   titre:"Étape 2 — Le compresseur (n° 2)", etat:["gaz froid → gaz chaud","#FBE3DE","#8A1C10"],
+     txt:"En bas, à l'arrière, dans le compartiment du moteur. Il aspire le gaz et le comprime : sa pression et sa température montent. C'est lui qui consomme l'énergie électrique."},
+    {o:"o-cond",  d:9,   titre:"Étape 3 — Le condenseur (n° 1)", etat:["gaz chaud → liquide tiède","#FDEBD9","#8A3E0F"],
+     txt:"La grille à l'arrière du réfrigérateur. Le gaz chaud cède sa chaleur à l'air de la cuisine et redevient liquide. Touche l'arrière d'un frigo : il est tiède !", out:true},
+    {o:"o-capi",  d:12,  titre:"Étape 4 — Le capillaire (n° 5)", etat:["liquide tiède → liquide très froid","#DDEBFA","#1F3864"],
+     txt:"Un tube très fin qui relie le haut du condenseur à l'évaporateur. Il détend le fluide : sa pression chute et il devient très froid, prêt à repartir dans l'évaporateur."},
+    {o:"o-thermo",d:1,   titre:"Étape 5 — Le thermostat (n° 4)", etat:["information","#E3F4E8","#1E6B3B"],
+     txt:"Sur la paroi intérieure. Il mesure la température : quand il fait trop chaud, il déclenche le compresseur ; quand c'est assez froid, il l'arrête."},
+    {o:"o-fluide",d:4,   titre:"Étape 6 — Le fluide frigorigène (n° 6)", etat:["boucle fermée","#EEF3FA","#1F3864"],
+     txt:"On l'appelle aussi gaz réfrigérant. Il fait le tour du circuit sans jamais en sortir et transporte la chaleur de l'intérieur vers l'extérieur. Le frigo ne fabrique pas de froid !", in:true, out:true}
   ];
   /* Points du circuit, dans le sens de circulation (le dernier rejoint le premier) :
-     1 = milieu de l'évaporateur, 4 = compresseur, 7 = milieu du condenseur, 10 = capillaire */
-  var POINTS = [[120,96],[120,160],[120,226],[120,272],[220,272],[340,272],[340,226],[340,160],[340,96],[340,36],[220,36],[120,36]];
+     1 = milieu de l'évaporateur, 4 = tuyau d'aspiration (n° 6), 6 = compresseur, 9 = milieu du condenseur, 12 = capillaire */
+  var POINTS = [[250,52],[175,64],[255,88],[292,88],[292,250],[292,360],[250,367],[330,376],[330,332],[337,195],[337,58],[337,30],[275,30],[250,30]];
   var ETAPE_DE_FT = [2, 1, 0, 4, 3, 5];  /* FT1 condenseur → étape 3, FT2 compresseur → étape 2… */
 
   var etat = {hyp:"", hypTxt:"", exp:"", pas:-1, assoc:["","","","","",""], concl:""};
@@ -267,7 +314,7 @@
   var anim = null, pos = 0, N = POINTS.length;
   function poser(idx){ pos = idx; $("goutte").setAttribute("cx", POINTS[idx][0]); $("goutte").setAttribute("cy", POINTS[idx][1]); }
   /* Rouge entre le compresseur et le condenseur (gaz chaud), bleu ailleurs */
-  function couleur(idx){ $("goutte").setAttribute("fill", idx >= 4 && idx <= 8 ? "#D9473A" : "#2E75B6"); }
+  function couleur(idx){ $("goutte").setAttribute("fill", idx >= 6 && idx <= 9 ? "#D9473A" : idx >= 10 && idx <= 12 ? "#E8913A" : "#2E75B6"); }
   /* La goutte glisse de point en point dans le sens du circuit ;
      la position finale est posée directement, quoi qu'il arrive à l'animation */
   function deplacer(a, tourComplet){
@@ -289,12 +336,12 @@
   }
   function montrerPas(i, anime){
     document.querySelectorAll(".organe").forEach(function(g){ g.classList.remove("actif"); });
-    $("chaleurIn").setAttribute("opacity", 0); $("chaleurOut").setAttribute("opacity", 0);
+    $("chaleurIn").setAttribute("opacity", 0); $("chaleurOut").setAttribute("opacity", 0); document.querySelector(".chaleurOut2").setAttribute("opacity", 0);
     if (i < 0){ poser(0); couleur(0); $("exNum").textContent = ""; $("btnPrec").disabled = true; $("btnSuiv").disabled = false; return; }
     var e = ETAPES[i];
     if (e.o) $(e.o).classList.add("actif");
     if (e.in) $("chaleurIn").setAttribute("opacity", 1);
-    if (e.out) $("chaleurOut").setAttribute("opacity", 1);
+    if (e.out){ $("chaleurOut").setAttribute("opacity", 1); document.querySelector(".chaleurOut2").setAttribute("opacity", 1); }
     $("exTitre").textContent = e.titre; $("exTexte").textContent = e.txt;
     $("exEtat").textContent = e.etat[0]; $("exEtat").style.background = e.etat[1]; $("exEtat").style.color = e.etat[2];
     if (anime) deplacer(e.d, i === ETAPES.length - 1); else { poser(e.d); couleur(e.d); }
@@ -304,13 +351,35 @@
   $("btnSuiv").addEventListener("click", function(){ etat.pas = Math.min(ETAPES.length - 1, etat.pas + 1); montrerPas(etat.pas, true); sauver(); });
   $("btnPrec").addEventListener("click", function(){ etat.pas = Math.max(0, etat.pas - 1); montrerPas(etat.pas, false); sauver(); });
 
+  /* ── La physique : un gaz comprimé chauffe, un gaz détendu refroidit (valeurs indicatives) ── */
+  var PARTS = []; for (var q = 0; q < 22; q++) PARTS.push([((q * 37) % 100) / 100, ((q * 61 + 17) % 100) / 100]);
+  function physique(){
+    var p = +$("piston-pos").value / 100;            /* -1 détendu … 0 repos … +1 comprimé */
+    var bout = 180 - p * 110;                        /* abscisse de la tête du piston */
+    $("piston").setAttribute("transform", "translate(" + bout + ",0)");
+    var temp = Math.round(20 + 40 * p);
+    var rouge = p > 0 ? Math.round(46 + 170 * p) : 46, bleu = p < 0 ? Math.round(182 + 50 * -p) : Math.round(182 - 120 * p);
+    var coul = "rgb(" + rouge + ",117," + bleu + ")";
+    $("particules").innerHTML = PARTS.map(function(c){
+      var x = 40 + c[0] * (bout - 48), y = 50 + c[1] * 50;
+      return '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="4" fill="' + coul + '"/>';
+    }).join("");
+    $("thermo").textContent = temp + " °C";
+    $("thermo").setAttribute("fill", coul);
+    $("phys-msg").textContent = p > 0.15 ? "Comprimé : les particules sont serrées, le gaz s'échauffe (comme dans le compresseur)."
+      : p < -0.15 ? "Détendu : les particules s'écartent, le gaz se refroidit (comme après le capillaire)."
+      : "Au repos : le gaz est à la température de la pièce.";
+  }
+  $("piston-pos").addEventListener("input", physique);
+  physique();
+
   /* ── Association ST → FT ── */
   function rendreAssoc(){
     var tb = $("tabAssoc").querySelector("tbody"); tb.innerHTML = "";
     ORDRE_ST.forEach(function(k, ligne){
       var tr = document.createElement("tr");
-      var opts = '<option value="">— Choisir —</option>' + FT.map(function(f, j){ return '<option value="'+j+'"'+(etat.assoc[ligne]===String(j)?" selected":"")+'>'+f.ft+'</option>'; }).join("");
-      tr.innerHTML = '<td><strong>' + FT[k].st + '</strong></td><td data-k="'+k+'"><select data-l="'+ligne+'" aria-label="Fonction technique du '+FT[k].st+'">' + opts + '</select></td>';
+      var opts = '<option value="">— Choisir —</option>' + ORDRE_FT.map(function(j){ return '<option value="'+j+'"'+(etat.assoc[ligne]===String(j)?" selected":"")+'>'+FT[j].ft+'</option>'; }).join("");
+      tr.innerHTML = '<td><strong>' + (k+1) + ' — ' + FT[k].st + '</strong></td><td data-k="'+k+'"><select data-l="'+ligne+'" aria-label="Fonction technique de la solution '+(k+1)+', '+FT[k].st+'">' + opts + '</select></td>';
       tb.appendChild(tr);
     });
     tb.querySelectorAll("select").forEach(function(s){
