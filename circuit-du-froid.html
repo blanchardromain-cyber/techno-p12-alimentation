@@ -24,6 +24,9 @@
   section.etape{background:#fff;border:1px solid var(--bord);border-radius:14px;padding:18px 20px;margin-top:16px;border-left:6px solid var(--c1,var(--blue))}
   section.etape > h2{margin:0 0 10px;font-size:19px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
   .badge{display:inline-block;border-radius:999px;padding:3px 12px;font-size:12px;font-weight:800;color:#fff;background:var(--c1,var(--blue));letter-spacing:.03em;text-transform:uppercase}
+  .verrou-retenir{background:#F5F5F5;border:2px dashed #B0B8C2;border-radius:10px;padding:12px 16px;color:var(--gris)}
+  .verrou-retenir li.fait{color:var(--vt);font-weight:700}
+  .verrou-retenir li.fait::marker{content:"✓ "}
   .phys{background:#F7F9FC;border:1px solid var(--bord);border-radius:12px;padding:12px 14px}
   #seringue{display:block;width:100%;max-width:520px;height:auto;margin:0 auto}
   #question{--c1:var(--q)} #hypothese{--c1:var(--h)} #experience,#circuit,#physique,#associer{--c1:var(--i)} #conclure{--c1:var(--c)} #retenir{--c1:var(--r)}
@@ -207,7 +210,7 @@
       <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--gris)"><span>← je détends</span><span>je comprime →</span></div>
       <p id="phys-msg" aria-live="polite" style="margin:8px 0 0"></p>
     </div>
-    <div class="retenir" style="margin-top:10px;font-size:15px">
+    <div class="retenir" id="lienFrigo" hidden style="margin-top:10px;font-size:15px">
       <strong>Dans le réfrigérateur :</strong> le <strong>compresseur (n° 2)</strong> comprime le gaz, qui s'échauffe ; le <strong>condenseur (n° 1)</strong> rejette cette chaleur dans la cuisine. Le <strong>capillaire (n° 5)</strong> détend le fluide, qui se refroidit ; dans l'<strong>évaporateur (n° 3)</strong>, il prend alors la chaleur des aliments.
     </div>
   </section>
@@ -231,7 +234,14 @@
 
   <section class="etape" id="retenir">
     <h2><span class="badge">5 · Je retiens</span></h2>
-    <div class="retenir">
+    <div class="verrou-retenir" id="retenirVerrou">
+      <p style="margin:0 0 6px"><strong>🔒 À débloquer.</strong> Ce que tu retiens apparaît quand tu as :</p>
+      <ul style="margin:0;padding-left:20px">
+        <li id="condAssoc">associé correctement les 6 organes à leur fonction technique ;</li>
+        <li id="condConcl">écrit ta conclusion, puis comparé avec la réponse attendue.</li>
+      </ul>
+    </div>
+    <div class="retenir" id="retenirCorps" hidden>
       <p style="margin:0 0 6px">Le réfrigérateur <strong>ne fabrique pas de froid</strong> : le fluide frigorigène <strong>transporte la chaleur</strong> de l'intérieur vers l'extérieur. Quand un liquide s'évapore, il absorbe de la chaleur.</p>
       <div class="tab-wrap"><table class="ref">
         <thead><tr><th>Fonction technique (FT)</th><th>Solution technique (ST)</th></tr></thead>
@@ -383,7 +393,7 @@
       tb.appendChild(tr);
     });
     tb.querySelectorAll("select").forEach(function(s){
-      s.addEventListener("change", function(){ etat.assoc[+s.dataset.l] = s.value; var td = s.closest("td"); td.classList.remove("bon","faux"); var p = td.querySelector(".pourquoi"); if (p) p.remove(); sauver(); });
+      s.addEventListener("change", function(){ etat.assoc[+s.dataset.l] = s.value; etat.assocOk = false; var td = s.closest("td"); td.classList.remove("bon","faux"); var p = td.querySelector(".pourquoi"); if (p) p.remove(); sauver(); });
     });
   }
   $("btnAssoc").addEventListener("click", function(){
@@ -399,18 +409,31 @@
       td.appendChild(s);
     });
     var m = $("assocMsg");
-    if (justes === 6){ m.className = "retour-msg ok"; m.textContent = "Bravo, les 6 associations sont justes."; }
+    if (justes === 6){ m.className = "retour-msg ok"; m.textContent = "Bravo, les 6 associations sont justes."; etat.assocOk = true; }
     else { m.className = "retour-msg ko"; m.textContent = justes + " / 6 juste" + (justes>1?"s":"") + (vides ? " — " + vides + " ligne" + (vides>1?"s":"") + " sans réponse." : "."); }
+    sauver(); majRetenir();
   });
+
+  /* ── « Je retiens » se gagne : association réussie + conclusion écrite et comparée ── */
+  var PROF = /[?&]prof\b/.test(location.search);
+  function majRetenir(){
+    var a = PROF || !!etat.assocOk, c = PROF || !!etat.conclOk;
+    $("condAssoc").classList.toggle("fait", a); $("condConcl").classList.toggle("fait", c);
+    $("lienFrigo").hidden = !a;
+    $("retenirVerrou").hidden = a && c; $("retenirCorps").hidden = !(a && c);
+  }
 
   /* ── Je conclus ── */
   $("conclTxt").value = etat.concl;
   $("conclTxt").addEventListener("input", function(){ etat.concl = this.value; sauver(); });
   $("btnConcl").addEventListener("click", function(){
     var t = norm(etat.concl), m = $("conclMsg");
+    if (!PROF && !etat.assocOk){ m.className = "retour-msg ko"; m.textContent = "Termine d'abord l'association des 6 organes, puis écris ta conclusion."; return; }
+    if (!PROF && t.length < 15){ m.className = "retour-msg ko"; m.textContent = "Écris d'abord ta conclusion en une ou deux phrases : la réponse attendue s'affichera ensuite."; return; }
     var parleChaleur = /chaleur|chaud/.test(t);
+    etat.conclOk = true; sauver(); majRetenir();
     m.className = "retour-msg info";
-    m.innerHTML = (t.length < 15 ? "Écris d'abord ta conclusion. " : parleChaleur ? "Bien : tu parles de la chaleur. " : "Pense à expliquer où va la chaleur. ") +
+    m.innerHTML = (parleChaleur ? "Bien : tu parles de la chaleur. " : "Pense à expliquer où va la chaleur. ") +
       "<br><strong>Réponse attendue :</strong> non, le frigo ne fabrique pas de froid. Le fluide frigorigène <strong>absorbe la chaleur à l'intérieur</strong> (évaporateur) et la <strong>dissipe vers l'extérieur</strong> (condenseur) : il <strong>transporte la chaleur</strong>." +
       (etat.hyp==="non" ? " Ton hypothèse était juste." : etat.hyp==="oui" ? " Ton hypothèse était différente : l'investigation a permis de la corriger." : "");
   });
@@ -423,7 +446,7 @@
 
   /* État adressable : #pas-1 à #pas-6 (projection) */
   var mh = /^#pas-(\d)$/.exec(location.hash); if (mh) etat.pas = Math.min(ETAPES.length, Math.max(1, +mh[1])) - 1;
-  maj(); rendreAssoc(); montrerPas(etat.pas, false);
+  maj(); rendreAssoc(); montrerPas(etat.pas, false); majRetenir();
   if (mh) $("circuit").scrollIntoView();
 })();
 </script>
