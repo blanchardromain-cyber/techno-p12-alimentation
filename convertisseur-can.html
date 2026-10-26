@@ -66,6 +66,9 @@
   #graph{display:block;width:100%;height:auto;background:#fff;border:1px solid var(--bord);border-radius:12px;margin-top:10px}
   textarea{font:inherit;font-size:16px;width:100%;border:2px solid var(--bord);border-radius:8px;padding:8px 10px;resize:vertical}
   .retenir{background:#FFF4F2;border-radius:10px;padding:12px 16px}
+  .verrou-retenir{background:#F5F5F5;border:2px dashed #B0B8C2;border-radius:10px;padding:12px 16px;color:var(--gris)}
+  .verrou-retenir li.fait{color:var(--vt);font-weight:700}
+  .verrou-retenir li.fait::marker{content:"✓ "}
   .footer{color:var(--gris);font-size:12px;text-align:center;margin-top:28px}
   @media (max-width:760px){ .chaine{grid-template-columns:1fr 1fr} .bloc:not(:last-child)::after{display:none} header.band h1{font-size:21px} section.etape{padding:14px} }
   @media (min-width:1400px){ body{font-size:18px} main,.pbar-in{max-width:1200px} .prog{font-size:17px;max-width:680px} }
@@ -167,7 +170,14 @@
 
   <section class="etape" id="retenir">
     <h2><span class="badge">5 · Je retiens</span></h2>
-    <div class="retenir">
+    <div class="verrou-retenir" id="retenirVerrou">
+      <p style="margin:0 0 6px"><strong>🔒 À débloquer.</strong> Ce que tu retiens apparaît quand tu as :</p>
+      <ul style="margin:0;padding-left:20px">
+        <li id="condProg">complété le programme par blocs sans erreur ;</li>
+        <li id="condConcl">écrit ta conclusion, puis comparé avec la réponse attendue.</li>
+      </ul>
+    </div>
+    <div class="retenir" id="retenirCorps" hidden>
       <p style="margin:0 0 6px"><strong>Chaîne d'information :</strong> capteur → microcontrôleur → actionneur.</p>
       <ul style="margin:0;padding-left:20px">
         <li><strong>Signal analogique</strong> : il varie de façon continue (la tension du capteur d'humidité).</li>
@@ -207,7 +217,8 @@
     $("vR").textContent = fr(Math.round(R), 0) + " kΩ";
     $("vU").textContent = fr(U, 2) + " V";
     $("vN").textContent = N;
-    $("vT").textContent = !reserve ? "réserve vide → voyant rouge" : N < 54 ? (legumes ? N + " < 54 → arroser" : N + " < 54 mais pas de légumes") : N > 283 ? N + " > 283 → arrêter" : "entre 54 et 283 → ne rien changer";
+    /* Pas de seuil chiffré ici : les valeurs 54 et 283 sont à trouver pour compléter le programme */
+    $("vT").textContent = !reserve ? "réserve vide → voyant rouge" : N < 54 ? (legumes ? "sable trop sec → arroser" : "sable trop sec, mais pas de légumes") : N > 283 ? "sable assez humide → arrêter" : "entre les deux → ne rien changer";
     $("vP").textContent = pompe ? "ON" : "OFF";
     $("vP").style.color = pompe ? "#1E6B3B" : "#566070";
     document.querySelectorAll("table.can tr[data-h]").forEach(function(tr){ tr.classList.toggle("ici", +tr.dataset.h === h); });
@@ -226,18 +237,24 @@
   function nombre(v){ var n = parseFloat(String(v||"").replace(/\s/g,"").replace(",", ".")); return isNaN(n) ? null : n; }
   var ATTENDU = {
     "p-boucle":[function(v){ return v==="indef"; }, "La boucle : le bac doit surveiller l'humidité en permanence, sans jamais s'arrêter. « Répéter jusqu'à réserve suffisante » s'arrête dès le départ, puisque la réserve est pleine : la pompe ne démarrerait jamais."],
-    "p-bas":[function(v){ return nombre(v)===54; }, "Le seuil bas : 40 % d'humidité correspond à la valeur CAN 54 (document 3)."],
+    "p-bas":[function(v){ return nombre(v)===54; }, "Le seuil bas : le microcontrôleur ne lit pas des %, mais une valeur CAN. Cherche dans le tableau la valeur CAN qui correspond à 40 % d'humidité."],
     "p-et":[function(v){ return v==="legumes"; }, "La deuxième condition : on n'arrose que s'il y a des légumes dans le bac."],
     "p-on":[function(v){ return v==="ON"; }, "Sable trop sec : la pompe doit se mettre en marche (ON)."],
-    "p-haut":[function(v){ return nombre(v)===283; }, "Le seuil haut : 50 % d'humidité correspond à la valeur CAN 283."],
+    "p-haut":[function(v){ return nombre(v)===283; }, "Le seuil haut : cherche dans le tableau la valeur CAN qui correspond à 50 % d'humidité."],
     "p-off":[function(v){ return v==="OFF"; }, "Sable assez humide : la pompe doit s'arrêter (OFF)."]
   };
   $("btnVerif").addEventListener("click", function(){
     var erreurs = [];
     CHAMPS.forEach(function(id){ var ok = ATTENDU[id][0]($(id).value); $(id).classList.toggle("bon", ok); $(id).classList.toggle("faux", !ok); if (!ok) erreurs.push(ATTENDU[id][1]); });
     var m = $("msgProg");
-    if (!erreurs.length){ m.className = "msg ok"; m.textContent = "Toutes les cases sont justes. Teste le programme pour voir l'humidité rester entre 40 % et 50 %."; }
-    else { m.className = "msg ko"; m.innerHTML = erreurs.length + " case" + (erreurs.length>1?"s":"") + " à revoir :<ul>" + erreurs.map(function(e){ return "<li>" + e + "</li>"; }).join("") + "</ul>"; }
+    if (!erreurs.length){ m.className = "msg ok"; m.textContent = "Toutes les cases sont justes. Teste le programme pour voir l'humidité rester entre 40 % et 50 %."; etat.progOk = true; sauver(); majRetenir(); }
+    else {
+      /* 1er essai : seulement les cases en rouge ; ensuite, une piste par case (jamais la valeur) */
+      etat.essaisProg = (etat.essaisProg || 0) + 1; sauver();
+      m.className = "msg ko";
+      m.innerHTML = erreurs.length + " case" + (erreurs.length>1?"s":"") + " à revoir (en rouge)." +
+        (etat.essaisProg < 2 ? " Corrige-les, puis vérifie de nouveau pour obtenir une piste." : "<ul>" + erreurs.map(function(e){ return "<li>" + e + "</li>"; }).join("") + "</ul>");
+    }
   });
 
   /* Simulation : le programme de l'élève est exécuté tel qu'il est écrit */
@@ -266,6 +283,7 @@
     var dedans = mini >= 38.5 && maxi <= 51.5;
     var m = $("msgProg");
     m.className = "msg " + (dedans && !arret ? "ok" : "ko");
+    if (dedans && !arret){ etat.progOk = true; sauver(); majRetenir(); }
     m.textContent = (arret ? arret + " " : "") + "Pendant le test, l'humidité est restée entre " + fr(mini, 0) + " % et " + fr(maxi, 0) + " %." +
       (dedans && !arret ? " Le cahier des charges (40 % à 50 %) est respecté." : " Le cahier des charges (40 % à 50 %) n'est pas respecté : clique sur « Vérifier les cases ».");
   });
@@ -286,16 +304,27 @@
   });
   $("concl").value = etat.concl;
   $("concl").addEventListener("input", function(){ etat.concl = this.value; sauver(); });
+  /* ── « Je retiens » se gagne : programme juste + conclusion écrite et comparée ── */
+  var PROF = /[?&]prof\b/.test(location.search);
+  function majRetenir(){
+    var a = PROF || !!etat.progOk, c = PROF || !!etat.conclOk;
+    $("condProg").classList.toggle("fait", a); $("condConcl").classList.toggle("fait", c);
+    $("retenirVerrou").hidden = a && c; $("retenirCorps").hidden = !(a && c);
+  }
   $("btnConcl").addEventListener("click", function(){
     var t = norm(etat.concl), mots = ["analogique","can","numerique","seuil"].filter(function(k){ return (" " + t + " ").indexOf(" " + k) >= 0; });
-    var m = $("msgConcl"); m.className = "msg info";
+    var m = $("msgConcl");
+    if (!PROF && !etat.progOk){ m.className = "msg ko"; m.textContent = "Termine d'abord le programme par blocs : toutes les cases justes, ou un test qui respecte le cahier des charges."; return; }
+    if (!PROF && t.length < 15){ m.className = "msg ko"; m.textContent = "Écris d'abord ta conclusion en une ou deux phrases : la réponse attendue s'affichera ensuite."; return; }
+    etat.conclOk = true; sauver(); majRetenir();
+    m.className = "msg info";
     m.innerHTML = "Tu as utilisé " + mots.length + " mot" + (mots.length>1?"s":"") + " sur 4." +
       "<br><strong>Réponse attendue :</strong> le capteur d'humidité délivre une tension <strong>analogique</strong>. Le <strong>CAN</strong> la transforme en une valeur <strong>numérique</strong> (de 0 à 1 023). Le microcontrôleur compare cette valeur à des <strong>seuils</strong> : en dessous de 54 (40 %), il met la pompe en marche ; au-dessus de 283 (50 %), il l'arrête." +
       (etat.hyp === "nombre" ? " Ton hypothèse était juste." : etat.hyp ? " Ton hypothèse était différente : l'investigation a permis de la corriger." : "");
   });
   $("btnRecommencer").addEventListener("click", function(){ if (!confirm("Effacer ce que tu as fait sur cette page ?")) return; try{ localStorage.removeItem(CLE); }catch(e){} location.reload(); });
 
-  majChaine(); dessiner([]);
+  majChaine(); dessiner([]); majRetenir();
 })();
 </script>
 <script>window.CONFORT_LECTURE = { hote:".pbar-in", racine:"main", fonts:"https://blanchardromain-cyber.github.io/technologie-stpierre/pp4g/fonts/" };</script>
