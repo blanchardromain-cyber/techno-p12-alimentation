@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P12 — Le frigo connecté à la loupe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--navy:#1F3864;--blue:#2E75B6;--or:#C8611A;--vt:#1E6B3B;--rouge:#B42318;--fond:#f4f7fb;--bord:#dde5ee;--txt:#1f2430;--gris:#566070;
+        --vio:#6A3FB0;--viop:#F1EBFA;--q:#2E75B6;--h:#7A4FBF;--i:#C8611A;--c:#1E6B3B;--r:#B42318}
+  *{box-sizing:border-box}
+  body{font-family:'Inter',Arial,sans-serif;margin:0;background:var(--fond);color:var(--txt);line-height:1.5;font-size:16px}
+  .pbar{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--bord)}
+  .pbar-in{max-width:980px;margin:0 auto;padding:8px 16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .pbar-in a.retour{color:var(--navy);font-weight:700;text-decoration:none;font-size:14px;margin-right:auto}
+  main{max-width:980px;margin:0 auto;padding:18px 16px 60px}
+  header.band{background:var(--navy);color:#fff;border-radius:14px;padding:20px 22px}
+  header.band .k{font-size:12px;letter-spacing:.04em;color:#bcd2ee;font-weight:600}
+  header.band h1{margin:6px 0 0;font-size:24px;line-height:1.25}
+  header.band p{margin:8px 0 0;color:#dce8f8;font-size:15px}
+  .comp{margin-top:10px;font-size:13px;color:#dce8f8}
+  section.etape{background:#fff;border:1px solid var(--bord);border-radius:14px;padding:18px 20px;margin-top:16px;border-left:6px solid var(--c1,var(--blue))}
+  section.etape > h2{margin:0 0 10px;font-size:19px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .badge{display:inline-block;border-radius:999px;padding:3px 12px;font-size:12px;font-weight:800;color:#fff;background:var(--c1,var(--blue));letter-spacing:.03em;text-transform:uppercase}
+  #question{--c1:var(--q)} #hypothese{--c1:var(--h)} #explorer,#scenes,#construire,#contextes{--c1:var(--i)} #conclure{--c1:var(--c)} #retenir{--c1:var(--r)}
+  .consigne{background:#F5F8FC;border-radius:10px;padding:10px 14px;margin:8px 0 12px}
+  .btn{font:inherit;font-size:15px;font-weight:700;border:none;border-radius:10px;padding:10px 18px;cursor:pointer;background:var(--navy);color:#fff}
+  .btn:hover{filter:brightness(1.12)} .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn.sec{background:#fff;color:var(--navy);border:2px solid var(--navy)}
+  .btn:focus-visible,.opt:focus-visible,.org:focus-visible{outline:3px solid #F2B705;outline-offset:2px}
+  .rang{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+  .retour-msg{margin-top:10px;border-radius:10px;padding:10px 14px;font-size:15px;display:none}
+  .retour-msg.ok{display:block;background:#E8F5EC;border-left:5px solid var(--vt)}
+  .retour-msg.ko{display:block;background:#FDECEA;border-left:5px solid var(--rouge)}
+  .retour-msg.info{display:block;background:#FFF6E5;border-left:5px solid var(--or)}
+  .opt{display:inline-flex;gap:8px;align-items:center;background:#fff;border:2px solid var(--bord);border-radius:10px;padding:8px 12px;cursor:pointer;font:inherit;font-size:15px;text-align:left;color:var(--txt)}
+  .opt[aria-pressed="true"]{border-color:var(--navy);background:#EEF3FA;font-weight:700}
+  .opt .num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--vio);color:#fff;font-size:13px;font-weight:800;flex:0 0 24px}
+  textarea,select,input[type=text]{font:inherit;font-size:16px;border:2px solid var(--bord);border-radius:8px;padding:8px 10px;background:#fff;color:var(--txt)}
+  textarea{width:100%;resize:vertical}
+  input[type=text]{width:100%}
+  select{max-width:100%}
+  .scene{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px;align-items:start}
+  #schema{display:block;width:100%;height:auto;background:#fff;border:1px solid var(--bord);border-radius:12px}
+  .org{cursor:pointer}
+  .org .forme{transition:stroke-width .15s}
+  .org:hover .forme,.org.actif .forme{stroke:#F2B705;stroke-width:4}
+  .explic{background:var(--viop);border:1px solid #D8C9F0;border-radius:12px;padding:12px 14px;min-height:150px}
+  .explic h3{margin:0 0 6px;font-size:17px;color:var(--vio)}
+  .liste-org{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .carte-scene{border:1px solid var(--bord);border-radius:12px;padding:12px 14px;margin-top:12px;background:#FCFDFE}
+  .carte-scene h3{margin:0 0 4px;font-size:17px;color:var(--navy)}
+  .carte-scene.reussie{border-color:var(--vt);background:#F4FBF6}
+  .carte-scene .q{font-weight:700;margin:8px 0}
+  .choix{display:flex;flex-wrap:wrap;gap:8px}
+  .ft-ligne{display:grid;grid-template-columns:70px minmax(0,1.6fr) minmax(0,1fr);gap:10px;align-items:start;border-top:1px solid var(--bord);padding:10px 0}
+  .ft-ligne:first-of-type{border-top:none}
+  .ft-ligne .n{font-weight:800;color:var(--vio);padding-top:8px}
+  .ft-ligne.bon input,.ft-ligne.bon select{border-color:var(--vt);background:#F1FAF3}
+  .ft-ligne.faux input,.ft-ligne.faux select{border-color:var(--rouge);background:#FFF4F2}
+  .ft-msg{grid-column:2 / -1;font-size:14px}
+  .ft-ligne.bon .ft-msg{color:var(--vt)} .ft-ligne.faux .ft-msg{color:var(--rouge)}
+  .entete-ft{display:grid;grid-template-columns:70px minmax(0,1.6fr) minmax(0,1fr);gap:10px;font-size:13px;font-weight:700;color:var(--gris)}
+  .docs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .doc{border:1px solid var(--bord);border-radius:12px;padding:12px 14px;background:#fff}
+  .doc .typ{font-size:12px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:.03em}
+  .doc p{margin:6px 0 8px;font-size:15px}
+  .doc .src{font-size:12px;color:var(--gris);margin:0 0 8px}
+  .doc.bon{border-color:var(--vt);background:#F4FBF6} .doc.faux{border-color:var(--rouge);background:#FFF8F6}
+  .doc .expl{font-size:14px;margin-top:8px}
+  .doc.bon .expl{color:var(--vt)} .doc.faux .expl{color:var(--rouge)}
+  .verrou-retenir{background:#F5F5F5;border:2px dashed #B0B8C2;border-radius:10px;padding:12px 16px;color:var(--gris)}
+  .verrou-retenir li.fait{color:var(--vt);font-weight:700}
+  .verrou-retenir li.fait::marker{content:"✓ "}
+  .retenir{background:#FFF4F2;border-radius:10px;padding:12px 16px}
+  .tab-wrap{overflow-x:auto}
+  table.ref{border-collapse:collapse;width:100%;font-size:15px;margin-top:8px}
+  table.ref th,table.ref td{border:1px solid #F0C9C2;padding:6px 8px;text-align:left}
+  table.ref th{background:#FBE3DE}
+  .footer{color:var(--gris);font-size:12px;text-align:center;margin-top:28px}
+  .print-only{display:none}
+  @media (max-width:760px){ .scene{grid-template-columns:1fr} .docs{grid-template-columns:1fr} header.band h1{font-size:21px} section.etape{padding:14px}
+    .ft-ligne,.entete-ft{grid-template-columns:minmax(0,1fr)} .entete-ft{display:none} .ft-ligne select{width:100%} .ft-ligne .n{padding-top:0} .ft-msg{grid-column:1} }
+  @media (min-width:1400px){ body{font-size:18px} main,.pbar-in{max-width:1200px} }
+  @media (prefers-reduced-motion:reduce){ *{transition:none!important;animation:none!important} }
+  @media print{ .pbar,.btn,.rang,.no-print{display:none!important} body{background:#fff;font-size:12pt} section.etape{break-inside:avoid;border:1px solid #999} .print-only{display:block} }
+</style>
+</head>
+<body>
+<div class="pbar"><div class="pbar-in">
+  <a class="retour" href="./index.html">&larr; Séquence P12</a>
+  <button class="btn sec" id="btnRecommencer" type="button">Recommencer</button>
+  <button class="btn sec" id="btnImprimer" type="button">Imprimer</button>
+</div></div>
+
+<main>
+  <header class="band">
+    <div class="k">TECHNOLOGIE · 4ᵉ · Séquence P12 · Activité 1 · Partie ③</div>
+    <h1>Le frigo connecté à la loupe</h1>
+    <p>Le réfrigérateur connecté : une évolution du réfrigérateur</p>
+    <div class="comp"><strong>Compétence :</strong> Décrire les liens entre usages et évolutions technologiques des objets et des systèmes techniques · <strong>CPS travaillée :</strong> Coopérer en binôme · non noté</div>
+  </header>
+
+  <section class="etape" id="question">
+    <h2><span class="badge">1 · La question</span></h2>
+    <p style="font-size:20px;font-weight:700;margin:0">Que sait faire un frigo connecté qu'un frigo ordinaire ne sait pas faire ?</p>
+  </section>
+
+  <section class="etape" id="hypothese">
+    <h2><span class="badge">2 · Mon hypothèse</span></h2>
+    <p class="consigne" data-consigne>Écris ce que tu penses avant d'investiguer. Il n'y a pas de mauvaise réponse à cette étape.</p>
+    <textarea id="hypTxt" rows="2" placeholder="Je pense qu'un frigo connecté peut…"></textarea>
+  </section>
+
+  <section class="etape" id="explorer">
+    <h2><span class="badge">3 · J'investigue</span> Le même frigo… avec de nouveaux organes</h2>
+    <p class="consigne" data-consigne>C'est le réfrigérateur de la carte « Le circuit du froid », toujours vu en coupe. Les organes <strong>1 à 6</strong> (en gris) font toujours le froid. Les organes <strong>7 à 10</strong> (en violet) sont nouveaux. Clique sur chaque organe violet et sur le smartphone pour découvrir ce qu'il fait.</p>
+    <div class="scene">
+      <svg id="schema" viewBox="0 0 460 430" role="img" aria-label="Réfrigérateur connecté vu en coupe : organes 1 à 6 du circuit du froid en gris, 7 caméra intérieure, 8 écran tactile sur la porte, 9 carte Wi-Fi, 10 capteur d'ouverture de porte, et un smartphone">
+        <!-- Caisse du réfrigérateur vue de profil, en coupe (porte à gauche, dos à droite), comme la carte « Le circuit du froid » -->
+        <rect x="40" y="20" width="270" height="380" rx="8" fill="#F4F7FA" stroke="#4A5562" stroke-width="2.5"/>
+        <rect x="40" y="20" width="18" height="300" rx="4" fill="#DCE3EA" stroke="#4A5562" stroke-width="1.5"/>
+        <text x="49" y="250" font-size="10" fill="#4A5562" transform="rotate(-90 49 250)" text-anchor="middle">porte</text>
+        <rect x="70" y="36" width="210" height="282" fill="#EAF4FF" stroke="#9DB8D6" stroke-width="1.5"/>
+        <line x1="70" y1="150" x2="280" y2="150" stroke="#9DB8D6" stroke-width="3"/>
+        <line x1="70" y1="235" x2="280" y2="235" stroke="#9DB8D6" stroke-width="3"/>
+        <text x="84" y="145" font-size="20" aria-hidden="true">🧀🥛</text>
+        <text x="84" y="230" font-size="20" aria-hidden="true">🥕🍶</text>
+        <text x="84" y="296" font-size="20" aria-hidden="true">🥬</text>
+        <rect x="190" y="330" width="112" height="62" rx="4" fill="#E6EBF0" stroke="#9AA6B2" stroke-width="1.5"/>
+        <!-- Circuit du froid (organes 1 à 6), en gris -->
+        <g aria-hidden="true" opacity=".75">
+          <path d="M255,88 H292 V360 H282" fill="none" stroke="#C5CDD6" stroke-width="5"/>
+          <path d="M282,376 H330 V332" fill="none" stroke="#C5CDD6" stroke-width="5"/>
+          <path d="M337,58 V30 H300" fill="none" stroke="#C5CDD6" stroke-width="4"/>
+          <path d="M250,30 V50" fill="none" stroke="#C5CDD6" stroke-width="4"/>
+          <path d="M330,332 V320 H352 V295 H322 V270 H352 V245 H322 V220 H352 V195 H322 V170 H352 V145 H322 V120 H352 V95 H322 V70 H337 V58" fill="none" stroke="#AEB8C2" stroke-width="3.5" stroke-linejoin="round"/>
+          <rect x="218" y="350" width="64" height="34" rx="14" fill="#C5CDD6" stroke="#8E9AA6" stroke-width="2"/>
+          <path d="M250,50 V52 H95 V64 H260 V76 H95 V88 H255" fill="none" stroke="#AEB8C2" stroke-width="3.5" stroke-linejoin="round"/>
+          <rect x="246" y="176" width="30" height="22" rx="4" fill="#fff" stroke="#AEB8C2" stroke-width="2"/>
+          <path d="M300,30 c-3,-7 -8,-7 -8,0 c0,7 -5,7 -8,0 c-3,-7 -8,-7 -8,0 c0,7 -5,7 -8,0 c-3,-7 -8,-7 -8,0 c0,7 -5,7 -8,0 h-2" fill="none" stroke="#AEB8C2" stroke-width="2.2"/>
+          <circle cx="372" cy="196" r="10" fill="#9AA6B2"/><text x="372" y="200" text-anchor="middle" font-size="12" font-weight="800" fill="#fff">1</text>
+          <circle cx="236" cy="414" r="10" fill="#9AA6B2"/><text x="236" y="418" text-anchor="middle" font-size="12" font-weight="800" fill="#fff">2</text>
+          <circle cx="104" cy="110" r="10" fill="#9AA6B2"/><text x="104" y="114" text-anchor="middle" font-size="12" font-weight="800" fill="#fff">3</text>
+          <circle cx="232" cy="187" r="10" fill="#9AA6B2"/><text x="232" y="191" text-anchor="middle" font-size="12" font-weight="800" fill="#fff">4</text>
+          <circle cx="262" cy="11" r="9" fill="#9AA6B2"/><text x="262" y="15" text-anchor="middle" font-size="11" font-weight="800" fill="#fff">5</text>
+          <circle cx="292" cy="250" r="10" fill="#9AA6B2"/><text x="292" y="254" text-anchor="middle" font-size="12" font-weight="800" fill="#fff">6</text>
+          <text x="452" y="424" text-anchor="end" font-size="10" fill="#7A8794">1 à 6 : circuit du froid</text>
+        </g>
+        <!-- 7 Caméra intérieure : en haut, au fond, tournée vers les clayettes -->
+        <g class="org" data-o="cam" tabindex="0" role="button" aria-label="Organe 7, caméra intérieure">
+          <path d="M258,112 L170,124 M258,112 L170,96" stroke="#6A3FB0" stroke-width="1.5" stroke-dasharray="4 4" fill="none"/>
+          <rect class="forme" x="258" y="104" width="20" height="16" rx="3" fill="#fff" stroke="#6A3FB0" stroke-width="2.5"/>
+          <circle cx="263" cy="112" r="4" fill="#6A3FB0"/>
+          <circle cx="246" cy="136" r="11" fill="#6A3FB0"/><text x="246" y="141" text-anchor="middle" font-size="13" font-weight="800" fill="#fff">7</text>
+          <text x="232" y="141" text-anchor="end" font-size="12" font-weight="700" fill="#6A3FB0">caméra</text>
+        </g>
+        <!-- 8 Écran tactile : sur la face avant de la porte -->
+        <g class="org" data-o="ecran" tabindex="0" role="button" aria-label="Organe 8, écran tactile">
+          <rect class="forme" x="27" y="118" width="13" height="74" rx="3" fill="#E4D8F6" stroke="#6A3FB0" stroke-width="2.5"/>
+          <circle cx="16" cy="104" r="11" fill="#6A3FB0"/><text x="16" y="109" text-anchor="middle" font-size="13" font-weight="800" fill="#fff">8</text>
+          <text x="2" y="210" font-size="11" font-weight="700" fill="#6A3FB0">écran</text>
+        </g>
+        <!-- 9 Carte Wi-Fi : en haut, à l'arrière, au-dessus de la caisse -->
+        <g class="org" data-o="wifi" tabindex="0" role="button" aria-label="Organe 9, carte Wi-Fi">
+          <rect class="forme" x="300" y="2" width="38" height="14" rx="2" fill="#2E7D32" stroke="#6A3FB0" stroke-width="2.5"/>
+          <rect x="305" y="6" width="8" height="6" fill="#C8E6C9"/><rect x="317" y="6" width="8" height="6" fill="#C8E6C9"/>
+          <path d="M340,8 q8,-6 16,0 M343,13 q5,-4 10,0" stroke="#6A3FB0" stroke-width="1.8" fill="none"/>
+          <circle cx="372" cy="20" r="11" fill="#6A3FB0"/><text x="372" y="25" text-anchor="middle" font-size="13" font-weight="800" fill="#fff">9</text>
+          <text x="386" y="25" font-size="12" font-weight="700" fill="#6A3FB0">Wi-Fi</text>
+        </g>
+        <!-- 10 Capteur d'ouverture de porte : à la jonction de la porte et de la caisse -->
+        <g class="org" data-o="porte" tabindex="0" role="button" aria-label="Organe 10, capteur d'ouverture de porte">
+          <rect class="forme" x="58" y="24" width="11" height="12" rx="2" fill="#E4D8F6" stroke="#6A3FB0" stroke-width="2.5"/>
+          <circle cx="88" cy="11" r="10" fill="#6A3FB0"/><text x="88" y="15" text-anchor="middle" font-size="11" font-weight="800" fill="#fff">10</text>
+          <text x="102" y="15" font-size="12" font-weight="700" fill="#6A3FB0">capteur de porte</text>
+        </g>
+        <!-- Smartphone, hors du réfrigérateur -->
+        <g class="org" data-o="appli" tabindex="0" role="button" aria-label="Smartphone et son application">
+          <path d="M372,34 C390,40 400,52 404,62" stroke="#6A3FB0" stroke-width="1.6" stroke-dasharray="3 4" fill="none"/>
+          <rect class="forme" x="398" y="62" width="44" height="82" rx="7" fill="#1f2430" stroke="#6A3FB0" stroke-width="2.5"/>
+          <rect x="402" y="70" width="36" height="64" rx="2" fill="#F1EBFA"/>
+          <text x="420" y="96" text-anchor="middle" font-size="16" aria-hidden="true">🥛</text>
+          <text x="420" y="122" text-anchor="middle" font-size="9" font-weight="700" fill="#6A3FB0">appli</text>
+          <text x="420" y="160" text-anchor="middle" font-size="12" font-weight="700" fill="#6A3FB0">smartphone</text>
+        </g>
+      </svg>
+      <div class="explic" aria-live="polite">
+        <h3 id="orgTitre">Clique sur un organe violet</h3>
+        <p id="orgTexte" style="margin:4px 0 0">Ou utilise les boutons sous le schéma.</p>
+      </div>
+    </div>
+    <div class="liste-org no-print" id="listeOrg" role="group" aria-label="Organes du frigo connecté"></div>
+  </section>
+
+  <section class="etape" id="scenes">
+    <h2><span class="badge">3 · J'investigue</span> Trois scènes de vie</h2>
+    <p class="consigne" data-consigne>Pour chaque scène, choisis l'organe qui résout le problème. Tu peux revenir au schéma autant de fois que tu veux.</p>
+    <div id="listeScenes"></div>
+  </section>
+
+  <section class="etape" id="construire">
+    <h2><span class="badge">3 · J'investigue</span> J'écris les deux nouvelles fonctions</h2>
+    <p class="consigne" data-consigne>Grâce aux scènes 1 et 2, écris les <strong>deux nouvelles fonctions techniques</strong> qui permettent d'agir <strong>à distance</strong>, avec le verbe en premier, puis choisis la <strong>solution technique</strong> qui réalise chacune. Recopie-les ensuite dans le tableau ③ de ta fiche.</p>
+    <div class="entete-ft" aria-hidden="true"><span>N°</span><span>Fonction technique (commence par un verbe)</span><span>Solution technique</span></div>
+    <div id="lignesFT"></div>
+    <div class="rang"><button class="btn" type="button" id="btnFT">Vérifier</button></div>
+    <div class="retour-msg" id="ftMsg" role="status" aria-live="polite"></div>
+  </section>
+
+  <section class="etape" id="contextes">
+    <h2><span class="badge">3 · J'investigue</span> Pourquoi le frigo connecté est-il apparu ?</h2>
+    <p class="consigne" data-consigne>Lis chaque document, puis choisis le contexte qu'il illustre : <strong>scientifique</strong> (comprendre), <strong>technique</strong> (savoir fabriquer), <strong>économique</strong> (argent, marché) ou <strong>social</strong> (mode de vie, besoins des personnes).</p>
+    <div class="docs" id="listeDocs"></div>
+    <div class="rang"><button class="btn" type="button" id="btnCtx">Vérifier</button></div>
+    <div class="retour-msg" id="ctxMsg" role="status" aria-live="polite"></div>
+  </section>
+
+  <section class="etape" id="conclure">
+    <h2><span class="badge">4 · Je conclus</span></h2>
+    <p class="consigne" data-consigne>Réponds à la question de départ : que sait faire de plus un frigo connecté, et dans quels contextes est-il apparu ? Compare avec ton hypothèse.</p>
+    <p class="print-only" id="hypImpr"></p>
+    <textarea id="conclTxt" rows="3" placeholder="Le frigo connecté peut… Il est apparu grâce à…"></textarea>
+    <div class="rang"><button class="btn" type="button" id="btnConcl">Comparer avec la réponse attendue</button></div>
+    <div class="retour-msg" id="conclMsg" role="status" aria-live="polite"></div>
+  </section>
+
+  <section class="etape" id="retenir">
+    <h2><span class="badge">5 · Je retiens</span></h2>
+    <div class="verrou-retenir" id="retenirVerrou">
+      <p style="margin:0 0 6px"><strong>🔒 À débloquer.</strong> Ce que tu retiens apparaît quand tu as :</p>
+      <ul style="margin:0;padding-left:20px">
+        <li id="condFT">écrit correctement les deux nouvelles fonctions et leurs solutions ;</li>
+        <li id="condCtx">classé les quatre documents dans leur contexte ;</li>
+        <li id="condConcl">écrit ta conclusion, puis comparé avec la réponse attendue.</li>
+      </ul>
+    </div>
+    <div class="retenir" id="retenirCorps" hidden>
+      <p style="margin:0 0 6px">Le réfrigérateur connecté garde le <strong>même principe</strong> : le fluide frigorigène transporte toujours la chaleur (organes 1 à 6). Il a évolué par ses <strong>fonctions</strong> et sa <strong>connexion</strong> : deux des quatre domaines d'évolution (matériaux, énergie, fonctions, connexion).</p>
+      <div class="tab-wrap"><table class="ref">
+        <thead><tr><th>Fonction technique (FT)</th><th>Solution technique (ST)</th></tr></thead>
+        <tbody>
+          <tr><td>FT7 — Visualiser l'intérieur du réfrigérateur à distance</td><td>Caméra de surveillance intelligente</td></tr>
+          <tr><td>FT8 — Communiquer avec le réfrigérateur depuis un smartphone</td><td>Carte Wi-Fi (connexion Internet sans fil)</td></tr>
+        </tbody>
+      </table></div>
+      <p style="margin:10px 0 0">Il apparaît dans un contexte <strong>technique</strong> (électronique, capteurs, Wi-Fi), <strong>économique</strong> (réduire les pertes alimentaires, marché de la maison connectée), <strong>social</strong> (confort et gain de temps demandés par les consommateurs) et <strong>scientifique</strong> (mieux comprendre les comportements alimentaires).</p>
+    </div>
+  </section>
+
+  <div class="footer">Collège Saint Pierre – Les Essarts · Séquence P12</div>
+</main>
+
+<script>
+(function(){
+  "use strict";
+  var CLE = "p12_frigo_connecte_v1";
+  var $ = function(id){ return document.getElementById(id); };
+  /* Correction tolérante : sans accents, sans majuscules, sans ponctuation */
+  function norm(s){ return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g," ").trim(); }
+  function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;"); }
+
+  var ORGANES = {
+    cam:   {n:"7",  nom:"Caméra intérieure", txt:"Une petite caméra fixée en haut, au fond du réfrigérateur. À chaque fermeture de la porte, elle photographie les clayettes : on voit ce qu'il y a à l'intérieur."},
+    ecran: {n:"8",  nom:"Écran tactile", txt:"Sur la porte. Il affiche la liste des aliments et leurs dates de péremption. On le touche du doigt, dans la cuisine, sans ouvrir la porte."},
+    wifi:  {n:"9",  nom:"Carte Wi-Fi", txt:"Une petite carte électronique avec une antenne. Elle relie le réfrigérateur à Internet par la box de la maison : les photos et les alertes partent vers le smartphone, les réglages en reviennent."},
+    porte: {n:"10", nom:"Capteur d'ouverture de porte", txt:"Il détecte si la porte est ouverte ou fermée. Il déclenche la photo de la caméra et repère une porte restée ouverte."},
+    appli: {n:"",   nom:"Smartphone et son application", txt:"L'application reçoit les photos et les alertes, et permet de régler la température. Elle ne peut rien recevoir sans la carte Wi-Fi du réfrigérateur."}
+  };
+  var CHOIX = ["cam","ecran","wifi","porte"];
+
+  var SCENES = [
+    {titre:"Scène 1 — Au supermarché", txt:"Après le collège, Léa fait les courses pour sa famille. Reste-t-il du lait dans le réfrigérateur ? Elle ne veut pas en racheter pour rien.",
+     q:"Quel organe permet à Léa de voir l'intérieur du réfrigérateur depuis le magasin ?", bon:"cam",
+     ok:"Oui : la caméra photographie l'intérieur, et grâce à la carte Wi-Fi la photo arrive sur le smartphone de Léa. Elle voit qu'il reste du lait.",
+     ko:{ecran:"L'écran est sur la porte, à la maison. Léa est au supermarché.", wifi:"La carte Wi-Fi transporte l'information, mais quel organe permet de voir le lait ?", porte:"Le capteur sait si la porte est ouverte, pas ce qu'il y a dans le réfrigérateur."}},
+    {titre:"Scène 2 — Au travail", txt:"Le capteur d'ouverture (n° 10) a détecté que la porte est restée entrouverte depuis cinq minutes. Le père de Léa est au travail.",
+     q:"Quel organe fait parvenir l'alerte jusqu'à son téléphone ?", bon:"wifi",
+     ok:"Oui : la carte Wi-Fi envoie l'information par Internet, et l'application affiche l'alerte. Depuis son téléphone, il peut aussi régler la température.",
+     ko:{cam:"La caméra voit l'intérieur, mais comment l'information quitte-t-elle la maison ?", ecran:"L'écran affiche l'alerte dans la cuisine… mais le père de Léa est au travail.", porte:"Le capteur a détecté la porte ouverte : c'est le point de départ. Mais quel organe envoie l'alerte jusqu'au travail ?"}},
+    {titre:"Scène 3 — Le yaourt oublié", txt:"Un yaourt périmé depuis une semaine a été retrouvé au fond du réfrigérateur. Dans la cuisine, on aimerait voir la liste des aliments et leurs dates sans ouvrir la porte.",
+     q:"Quel organe affiche ces informations dans la cuisine ?", bon:"ecran",
+     ok:"Oui : l'écran tactile de la porte affiche la liste des aliments et leurs dates. On ouvre la porte moins souvent : le froid reste à l'intérieur.",
+     ko:{cam:"La caméra prend la photo, mais où la regarder dans la cuisine, sans ouvrir la porte ?", wifi:"Pas besoin d'Internet pour regarder dans la cuisine : quel organe affiche les informations sur la porte ?", porte:"Le capteur sait si la porte est ouverte, pas quels aliments sont à l'intérieur."}}
+  ];
+
+  /* Solutions proposées : les deux attendues et trois autres organes */
+  var ST = [
+    {v:"cam",    lib:"Caméra de surveillance intelligente"},
+    {v:"wifi",   lib:"Carte Wi-Fi (connexion Internet sans fil)"},
+    {v:"ecran",  lib:"Écran tactile"},
+    {v:"porte",  lib:"Capteur d'ouverture de porte"},
+    {v:"thermo", lib:"Thermostat"}
+  ];
+  /* Chaque solution attendue a sa famille de verbes et ses compléments */
+  var REGLES = {
+    cam:  {verbe:/(^| )(visualis|voir|voit|regard|observ|film|photograph|surveill|filmer)/, objet:/(interieur|dedans|contenu|aliment|produit|frigo|refrigerateur|clayette)/,
+           loin:/(distance|smartphone|telephone|portable|appli|loin|dehors|exterieur|magasin|supermarche)/,
+           ref:"Visualiser l'intérieur du réfrigérateur à distance", scene:1},
+    wifi: {verbe:/(^| )(communiqu|envoy|envoi|transmet|connect|echang|reli|command|control|pilot|dialogu|alert|previen|informer)/, objet:/(smartphone|telephone|portable|appli|internet|wifi|wi fi|reseau|box|distance)/,
+           loin:/(smartphone|telephone|portable|appli|distance|internet)/,
+           ref:"Communiquer avec le réfrigérateur depuis un smartphone", scene:2}
+  };
+
+  var DOCS = [
+    {id:"eco", typ:"Chiffres", txt:"En France, environ 10 millions de tonnes de produits alimentaires sont perdues ou gaspillées chaque année, pour une valeur de 16 milliards d'euros. Moins jeter, c'est dépenser moins : un argument pour vendre des réfrigérateurs connectés.",
+     src:"Source : ADEME, « Pertes et gaspillages alimentaires », 2016.", bon:"economique",
+     expl:"Économique : le document parle d'argent (16 milliards d'euros, dépenser moins, vendre des appareils)."},
+    {id:"tech", typ:"Histoire d'une technique", txt:"En juin 2000, un fabricant coréen lance l'un des premiers réfrigérateurs reliés à Internet : écran, connexion au réseau, caméra. Depuis, les capteurs, les caméras et les puces Wi-Fi sont devenus assez petits et assez peu coûteux pour tenir dans une porte de réfrigérateur.",
+     src:"Source : histoire de l'Internet Digital DIOS (2000).", bon:"technique",
+     expl:"Technique : il a fallu savoir fabriquer des capteurs, des caméras et des puces Wi-Fi assez petits."},
+    {id:"soc", typ:"Témoignage (exemple)", txt:"« Avec le travail et les enfants, je fais les courses en vitesse en rentrant. Savoir sur mon téléphone ce qu'il reste dans le frigo, ça m'évite d'acheter deux fois la même chose et ça me fait gagner du temps. »",
+     src:"Témoignage imaginé pour l'activité.", bon:"social",
+     expl:"Social : le document parle du mode de vie et des besoins des personnes (gagner du temps, confort)."},
+    {id:"sci", typ:"Recherche (exemple)", txt:"Des chercheurs étudient ce que les familles achètent, conservent et jettent, pour comprendre comment naît le gaspillage. Les informations d'un réfrigérateur connecté (ouvertures de la porte, aliments, dates) peuvent les aider à mieux comprendre nos comportements alimentaires.",
+     src:"Situation imaginée pour l'activité.", bon:"scientifique",
+     expl:"Scientifique : il s'agit de comprendre un phénomène (nos comportements alimentaires) par l'étude et l'observation."}
+  ];
+  var CTX = [["scientifique","Scientifique"],["technique","Technique"],["economique","Économique"],["social","Social"]];
+
+  var etat = {hyp:"", org:"", sc:["","",""], scOk:[false,false,false], ft:[{t:"",s:""},{t:"",s:""}], ftOk:false, essaisFT:0,
+              ctx:{}, ctxOk:false, concl:"", conclOk:false};
+  function sauver(){ try{ localStorage.setItem(CLE, JSON.stringify(etat)); }catch(e){} }
+  try{ var s = JSON.parse(localStorage.getItem(CLE)||"null"); if (s && s.ft && s.sc) etat = Object.assign(etat, s); }catch(e){}
+  var PROF = /[?&]prof\b/.test(location.search);
+
+  /* ── Hypothèse ── */
+  $("hypTxt").value = etat.hyp;
+  $("hypTxt").addEventListener("input", function(){ etat.hyp = this.value; sauver(); majImpr(); });
+  function majImpr(){ $("hypImpr").textContent = "Mon hypothèse : " + (etat.hyp.trim() || "—"); }
+
+  /* ── Exploration du schéma ── */
+  function montrer(o){
+    etat.org = o; sauver();
+    document.querySelectorAll(".org").forEach(function(g){ g.classList.toggle("actif", g.dataset.o === o); });
+    document.querySelectorAll("#listeOrg .opt").forEach(function(b){ b.setAttribute("aria-pressed", b.dataset.o === o ? "true" : "false"); });
+    var x = ORGANES[o];
+    if (!x){ return; }
+    $("orgTitre").textContent = (x.n ? x.n + " — " : "") + x.nom;
+    $("orgTexte").textContent = x.txt;
+  }
+  document.querySelectorAll(".org").forEach(function(g){
+    g.addEventListener("click", function(){ montrer(g.dataset.o); });
+    g.addEventListener("keydown", function(e){ if (e.key === "Enter" || e.key === " "){ e.preventDefault(); montrer(g.dataset.o); } });
+  });
+  $("listeOrg").innerHTML = ["cam","ecran","wifi","porte","appli"].map(function(o){
+    var x = ORGANES[o];
+    return '<button class="opt" type="button" data-o="'+o+'" aria-pressed="false">' + (x.n ? '<span class="num">'+x.n+'</span>' : '📱') + esc(x.nom) + '</button>';
+  }).join("");
+  document.querySelectorAll("#listeOrg .opt").forEach(function(b){ b.addEventListener("click", function(){ montrer(b.dataset.o); }); });
+
+  /* ── Les trois scènes ── */
+  function rendreScenes(){
+    $("listeScenes").innerHTML = SCENES.map(function(sc, i){
+      return '<div class="carte-scene" id="sc'+i+'"><h3>'+esc(sc.titre)+'</h3><p style="margin:0">'+esc(sc.txt)+'</p>' +
+        '<p class="q">'+esc(sc.q)+'</p><div class="choix" role="group" aria-label="Organes pour la '+esc(sc.titre)+'">' +
+        CHOIX.map(function(o){ return '<button class="opt" type="button" data-i="'+i+'" data-o="'+o+'" aria-pressed="false"><span class="num">'+ORGANES[o].n+'</span>'+esc(ORGANES[o].nom)+'</button>'; }).join("") +
+        '</div><div class="retour-msg" id="scMsg'+i+'" role="status" aria-live="polite"></div></div>';
+    }).join("");
+    document.querySelectorAll("#listeScenes .opt").forEach(function(b){
+      b.addEventListener("click", function(){ var i = +b.dataset.i; etat.sc[i] = b.dataset.o; etat.scOk[i] = etat.sc[i] === SCENES[i].bon; sauver(); majScenes(); });
+    });
+    majScenes();
+  }
+  function majScenes(){
+    SCENES.forEach(function(sc, i){
+      var v = etat.sc[i], m = $("scMsg"+i);
+      document.querySelectorAll('#sc'+i+' .opt').forEach(function(b){ b.setAttribute("aria-pressed", b.dataset.o === v ? "true" : "false"); });
+      $("sc"+i).classList.toggle("reussie", v === sc.bon);
+      if (!v){ m.className = "retour-msg"; m.textContent = ""; }
+      else if (v === sc.bon){ m.className = "retour-msg ok"; m.textContent = "✅ " + sc.ok; }
+      else { m.className = "retour-msg ko"; m.textContent = "Pas encore : " + sc.ko[v] + " Essaie un autre organe."; }
+    });
+  }
+
+  /* ── Les deux fonctions techniques ── */
+  function rendreFT(){
+    $("lignesFT").innerHTML = [0,1].map(function(i){
+      return '<div class="ft-ligne" id="ftL'+i+'"><span class="n">FT'+(7+i)+'</span>' +
+        '<label><span class="print-only">Fonction : </span><input type="text" id="ftT'+i+'" autocomplete="off" aria-label="Fonction technique FT'+(7+i)+'" placeholder="Verbe + complément…"></label>' +
+        '<select id="ftS'+i+'" aria-label="Solution technique de FT'+(7+i)+'"><option value="">— Solution technique —</option>' +
+        ST.map(function(o){ return '<option value="'+o.v+'">'+esc(o.lib)+'</option>'; }).join("") + '</select>' +
+        '<div class="ft-msg" id="ftM'+i+'" aria-live="polite"></div></div>';
+    }).join("");
+    [0,1].forEach(function(i){
+      $("ftT"+i).value = etat.ft[i].t; $("ftS"+i).value = etat.ft[i].s;
+      $("ftT"+i).addEventListener("input", function(){ etat.ft[i].t = this.value; etat.ftOk = false; $("ftL"+i).classList.remove("bon","faux"); $("ftM"+i).textContent = ""; sauver(); majRetenir(); });
+      $("ftS"+i).addEventListener("change", function(){ etat.ft[i].s = this.value; etat.ftOk = false; $("ftL"+i).classList.remove("bon","faux"); $("ftM"+i).textContent = ""; sauver(); majRetenir(); });
+    });
+  }
+  /* Une ligne est juste si la solution est la caméra ou la carte Wi-Fi et si la fonction écrite
+     correspond à cette solution (verbe + complément). L'ordre des deux lignes est libre. */
+  function jugerLigne(l, autre, aide){
+    var t = norm(l.t), r = REGLES[l.s];
+    if (!t || !l.s) return {ok:false, msg:"Écris la fonction et choisis la solution technique."};
+    if (l.s === autre.s && r) return {ok:false, msg:"Les deux lignes ont la même solution : la seconde fonction utilise un autre organe."};
+    if (l.s === "ecran") return {ok:false, msg:"L'écran est bien une nouveauté, mais il s'utilise dans la cuisine. Cherche les deux organes qui permettent d'agir à distance (scènes 1 et 2)."};
+    if (!r) return {ok:false, msg:"Cet organe ne permet pas d'agir à distance. Relis les scènes 1 et 2."};
+    if (!r.verbe.test(t)) return {ok:false, msg:"Le verbe ne correspond pas à ce que fait cet organe. Relis la scène " + r.scene + "." + (aide ? " Aide : commence par « " + r.ref.split(" ")[0] + "… »." : "")};
+    if (!r.objet.test(t)) return {ok:false, msg:"Complète : sur quoi agit cette fonction ?" + (aide ? " Aide : « " + r.ref.split(" ").slice(0, 3).join(" ") + "… »." : "")};
+    if (!r.loin.test(t)) return {ok:false, msg:"Presque : précise d'où, ou avec quoi (à distance, depuis un smartphone…)."};
+    return {ok:true, msg:"✅ Juste. Formulation de la fiche corrigée : « " + r.ref + " »."};
+  }
+  $("btnFT").addEventListener("click", function(){
+    etat.essaisFT++;
+    var aide = etat.essaisFT >= 2, nbOk = 0;
+    [0,1].forEach(function(i){
+      var j = jugerLigne(etat.ft[i], etat.ft[1-i], aide), L = $("ftL"+i);
+      L.classList.remove("bon","faux"); L.classList.add(j.ok ? "bon" : "faux");
+      $("ftM"+i).textContent = j.msg; if (j.ok) nbOk++;
+    });
+    var m = $("ftMsg");
+    etat.ftOk = nbOk === 2;
+    if (etat.ftOk){ m.className = "retour-msg ok"; m.textContent = "Bravo : les deux nouvelles fonctions et leurs solutions sont justes. Recopie la formulation de la fiche corrigée."; }
+    else { m.className = "retour-msg ko"; m.textContent = nbOk + " / 2 ligne" + (nbOk > 1 ? "s" : "") + " juste" + (nbOk > 1 ? "s" : "") + "." + (aide ? "" : " Corrige, puis vérifie à nouveau : une aide apparaîtra."); }
+    sauver(); majRetenir();
+  });
+
+  /* ── Les contextes ── */
+  var dernierCtx = null;
+  function rendreDocs(){
+    $("listeDocs").innerHTML = DOCS.map(function(d){
+      return '<div class="doc" id="doc-'+d.id+'"><div class="typ">'+esc(d.typ)+'</div><p>'+esc(d.txt)+'</p><p class="src">'+esc(d.src)+'</p>' +
+        '<div class="choix" role="group" aria-label="Contexte du document '+esc(d.typ)+'">' +
+        CTX.map(function(c){ return '<button class="opt" type="button" data-d="'+d.id+'" data-c="'+c[0]+'" aria-pressed="false">'+c[1]+'</button>'; }).join("") +
+        '</div><div class="expl" id="expl-'+d.id+'" aria-live="polite"></div></div>';
+    }).join("");
+    document.querySelectorAll("#listeDocs .opt").forEach(function(b){
+      b.addEventListener("click", function(){
+        var d = b.dataset.d; etat.ctx[d] = (etat.ctx[d] === b.dataset.c) ? "" : b.dataset.c; etat.ctxOk = false;
+        $("doc-"+d).classList.remove("bon","faux"); $("expl-"+d).textContent = "";
+        majDocs(); sauver(); majRetenir();
+      });
+    });
+    majDocs();
+  }
+  function majDocs(){
+    document.querySelectorAll("#listeDocs .opt").forEach(function(b){ b.setAttribute("aria-pressed", etat.ctx[b.dataset.d] === b.dataset.c ? "true" : "false"); });
+  }
+  $("btnCtx").addEventListener("click", function(){
+    var justes = 0, vides = 0, reponses = JSON.stringify(etat.ctx);
+    DOCS.forEach(function(d){
+      var v = etat.ctx[d.id], D = $("doc-"+d.id), E = $("expl-"+d.id);
+      D.classList.remove("bon","faux");
+      if (!v){ vides++; E.textContent = ""; return; }
+      var ok = v === d.bon; if (ok) justes++;
+      D.classList.add(ok ? "bon" : "faux");
+      /* L'explication d'un document mal classé n'apparaît qu'après une vraie nouvelle tentative */
+      E.textContent = ok ? "✅ " + d.expl : (dernierCtx !== null && dernierCtx !== reponses ? "Indice : ce document parle-t-il d'argent, de savoir-faire, de mode de vie ou de comprendre ?" : "Relis le document : quel mot te met sur la piste ?");
+    });
+    dernierCtx = reponses;
+    var m = $("ctxMsg");
+    etat.ctxOk = justes === DOCS.length;
+    if (etat.ctxOk){ m.className = "retour-msg ok"; m.textContent = "Bravo : les quatre contextes sont justes. Un même objet apparaît souvent dans plusieurs contextes à la fois."; }
+    else { m.className = "retour-msg ko"; m.textContent = justes + " / 4 juste" + (justes > 1 ? "s" : "") + (vides ? " — " + vides + " document" + (vides > 1 ? "s" : "") + " sans réponse." : "."); }
+    sauver(); majRetenir();
+  });
+
+  /* ── Je conclus ── */
+  $("conclTxt").value = etat.concl;
+  $("conclTxt").addEventListener("input", function(){ etat.concl = this.value; sauver(); });
+  $("btnConcl").addEventListener("click", function(){
+    var t = norm(etat.concl), m = $("conclMsg");
+    if (!PROF && !(etat.ftOk && etat.ctxOk)){ m.className = "retour-msg ko"; m.textContent = "Termine d'abord les deux fonctions et le classement des documents, puis écris ta conclusion."; return; }
+    if (!PROF && t.length < 15){ m.className = "retour-msg ko"; m.textContent = "Écris d'abord ta conclusion en une ou deux phrases : la réponse attendue s'affichera ensuite."; return; }
+    etat.conclOk = true; sauver(); majRetenir();
+    var parleDistance = /(distance|smartphone|telephone|portable|appli)/.test(t);
+    m.className = "retour-msg info";
+    m.innerHTML = (parleDistance ? "Bien : tu parles de l'action à distance. " : "Pense à dire ce qu'il permet de faire à distance. ") +
+      "<br><strong>Réponse attendue :</strong> le frigo connecté fait toujours du froid de la même façon, mais il sait en plus <strong>visualiser l'intérieur à distance</strong> (caméra) et <strong>communiquer avec un smartphone</strong> (carte Wi-Fi). Il est apparu grâce aux progrès <strong>techniques</strong> et pour répondre à des besoins <strong>économiques</strong>, <strong>sociaux</strong> et <strong>scientifiques</strong>.";
+  });
+
+  /* ── « Je retiens » se gagne ── */
+  function majRetenir(){
+    var a = PROF || !!etat.ftOk, b = PROF || !!etat.ctxOk, c = PROF || !!etat.conclOk;
+    $("condFT").classList.toggle("fait", a); $("condCtx").classList.toggle("fait", b); $("condConcl").classList.toggle("fait", c);
+    $("retenirVerrou").hidden = a && b && c; $("retenirCorps").hidden = !(a && b && c);
+  }
+
+  $("btnRecommencer").addEventListener("click", function(){ if (!confirm("Effacer ce que tu as fait sur cette page ?")) return; try{ localStorage.removeItem(CLE); }catch(e){} location.reload(); });
+  $("btnImprimer").addEventListener("click", function(){ majImpr(); window.print(); });
+
+  rendreScenes(); rendreFT(); rendreDocs(); majImpr(); majRetenir();
+  if (etat.org) montrer(etat.org);
+})();
+</script>
+
+<script>window.CONFORT_LECTURE = { hote:".pbar-in", racine:"main", fonts:"https://blanchardromain-cyber.github.io/technologie-stpierre/pp4g/fonts/" };</script>
+<script src="https://blanchardromain-cyber.github.io/technologie-stpierre/assets/js/confort-lecture.js" defer></script>
+<script>window.LECTURE_IMMERSIVE = { racine:"main", hote:".pbar-in", sectionsFermees:"", classeFermeture:"" };</script>
+<script src="https://blanchardromain-cyber.github.io/technologie-stpierre/assets/js/lecture-immersive.js" defer></script>
+</body>
+</html>
