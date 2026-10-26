@@ -38,6 +38,12 @@ connexion ; non mécanisé / mécanisé / automatisé ; 4 symboles d'algorigramm
 - `robot-balance.html?corrige` remplit toutes les étapes ; `robot-balance.html?corrige&auto` lance la recette seule.
 - `circuit-du-froid.html#pas-1` à `#pas-6` : une étape du circuit.
 
+## Notes des exercices n°1 et n°2
+
+Les exercices notés vivent sur le site Technologie (cartes `p12-ex1` et `p12-ex2`) : le site propose une note sur 20,
+ajustable par le professeur. Les scripts de [`apps-script/`](apps-script/LISEZ-MOI.md) reportent la note validée
+dans le classeur Google Sheets de chaque exercice.
+
 ## Frise : dates et sources
 
 Les dates sont dans le tableau `EVENEMENTS`, en tête de `frise-innovations.html`, chacune avec son champ
