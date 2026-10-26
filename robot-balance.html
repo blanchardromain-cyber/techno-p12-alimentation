@@ -77,6 +77,9 @@
   .journal{font-size:14px;background:#fff;border:1px solid var(--bord);border-radius:8px;padding:8px 10px;height:118px;overflow:auto;margin-top:8px}
   .journal div{padding:2px 0;border-bottom:1px dashed #edf1f5}
   .retenir{background:#FFF4F2;border-radius:10px;padding:12px 16px;font-size:16px}
+  .verrou-retenir{background:#F5F5F5;border:2px dashed #B0B8C2;border-radius:10px;padding:12px 16px;color:var(--gris)}
+  .verrou-retenir li.fait{color:var(--vt);font-weight:700}
+  .verrou-retenir li.fait::marker{content:"✓ "}
   .retenir li{margin:4px 0}
   .footer{color:var(--gris);font-size:12px;text-align:center;margin-top:28px}
   .sr{position:absolute;left:-9999px}
@@ -248,7 +251,14 @@
 
   <section class="etape" id="retenir">
     <h2><span class="badge">5 · Je retiens</span></h2>
-    <div class="retenir">
+    <div class="verrou-retenir" id="retenirVerrou">
+      <p style="margin:0 0 6px"><strong>🔒 À débloquer.</strong> Ce que tu retiens apparaît quand tu as :</p>
+      <ul style="margin:0;padding-left:20px">
+        <li id="condFini">fait exécuter toute ta recette par le robot ;</li>
+        <li id="condConcl">écrit ta conclusion, puis comparé avec la réponse attendue.</li>
+      </ul>
+    </div>
+    <div class="retenir" id="retenirCorps" hidden>
       <ul>
         <li>Un système <strong>automatisé</strong> fournit l'énergie et se pilote seul grâce à un <strong>programme</strong>.</li>
         <li>Le programme ne peut tester que ce qu'un <strong>capteur</strong> mesure : « beurre ET cassonade ? » devient « <strong>masse ajoutée ≥ 225 g ?</strong> » grâce à la balance.</li>
@@ -623,7 +633,7 @@
       else if (!(await dormir(500, j))) return;
     }
     enCours = false; surligner(null); $("btnLancer").disabled = false; $("btnPas").disabled = true;
-    if (!etat.fini){ etat.fini = true; sauver(); }
+    if (!etat.fini){ etat.fini = true; sauver(); majRetenir(); }
   }
   $("btnLancer").addEventListener("click", function(){ if (enCours && pasAPas){ pasAPas = false; if (attentePas) attentePas(); this.disabled = true; return; } lancer(false); });
   $("btnPas").addEventListener("click", function(){ lancer(true); });
@@ -638,13 +648,24 @@
     if (c){ dessinerAlgo(); reinit(); }
   }
 
+  /* ── « Je retiens » se gagne : recette exécutée jusqu'au bout + conclusion écrite et comparée ── */
+  var PROF = /[?&](prof|corrige)\b/.test(location.search);
+  function majRetenir(){
+    var a = PROF || !!etat.fini, c = PROF || !!etat.conclOk;
+    $("condFini").classList.toggle("fait", a); $("condConcl").classList.toggle("fait", c);
+    $("retenirVerrou").hidden = a && c; $("retenirCorps").hidden = !(a && c);
+  }
+
   /* ── Je conclus ──────────────────────────────────────── */
   $("conclTxt").addEventListener("input", function(){ etat.concl = this.value; sauver(); });
   $("btnConcl").addEventListener("click", function(){
     var m = $("conclMsg"), t = norm(etat.concl);
+    if (!PROF && !etat.fini){ m.className = "retour-msg ko"; m.textContent = "Termine d'abord l'investigation : le robot doit avoir exécuté toute ta recette."; return; }
+    if (!PROF && t.length < 15){ m.className = "retour-msg ko"; m.textContent = "Écris d'abord ta conclusion en une ou deux phrases : la réponse attendue s'affichera ensuite."; return; }
     var mots = ["balance","pese","peser","masse","capteur"].filter(function(k){ return t.indexOf(k) >= 0; });
+    etat.conclOk = true; sauver(); majRetenir();
     m.className = "retour-msg info";
-    m.innerHTML = (t.length < 15 ? "Écris d'abord ta conclusion en une ou deux phrases. " : (mots.length ? "Ta conclusion parle bien de « " + mots[0] + " ». " : "Pense à parler du capteur. ")) +
+    m.innerHTML = (mots.length ? "Ta conclusion parle bien de « " + mots[0] + " ». " : "Pense à parler du capteur. ") +
       "<br><strong>Réponse attendue :</strong> le robot <strong>pèse</strong> ce que l'on ajoute : sa <strong>balance</strong> est le capteur. Il ne peut tester qu'une grandeur mesurée (« masse ajoutée ≥ 225 g ? »). Les durées de mélange sont des <strong>temporisations</strong> programmées." +
       (etat.hyp==="balance" ? " Ton hypothèse était juste." : etat.hyp ? " Ton hypothèse n'était pas celle-ci : c'est normal, l'investigation sert à la vérifier." : "");
   });
@@ -665,7 +686,7 @@
 
   charger();
   if (/[?&]corrige\b/.test(location.search)) corrige();
-  majHyp(); majCap(); rendreOrdre(); rendreReg(); $("conclTxt").value = etat.concl; majVerrous();
+  majHyp(); majCap(); rendreOrdre(); rendreReg(); $("conclTxt").value = etat.concl; majVerrous(); majRetenir();
   requestAnimationFrame(boucleLames);
   /* ?corrige&auto : la recette démarre seule (projection en classe) */
   if (/[?&]auto\b/.test(location.search) && etat.regOk && etat.ordreOk){ $("robot").scrollIntoView(); lancer(false); }
