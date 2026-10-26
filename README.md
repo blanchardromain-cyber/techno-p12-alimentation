@@ -10,8 +10,9 @@ Site publié : <https://blanchardromain-cyber.github.io/techno-p12-alimentation/
 | Fichier | Activité | Compétence (BO n°9 du 29 février 2024) | Ce que l'élève fait |
 |---|---|---|---|
 | `index.html` | — | — | Page d'accueil : la liste des cartes de la séquence |
-| `circuit-du-froid.html` | 1 | Décrire et caractériser l’organisation interne (énergies, données) | « Le frigo fabrique-t-il du froid ? » : hypothèse, goutte d’alcool, réfrigérateur vu en coupe numéroté 1 à 6 comme la fiche, fluide suivi pas à pas, seringue (comprimer chauffe, détendre refroidit), association organe → FT. Remplace l’animation Flash de la capsule A1 |
-| `decodeur-contextes.html` | 1 | Décrire les liens entre usages et évolutions technologiques | Jeu STES de la capsule A1 du site, autonome |
+| `decodeur-contextes.html` | 1 (partie ①) | Décrire les liens entre usages et évolutions technologiques | Jeu STES de la capsule A1 du site, autonome |
+| `circuit-du-froid.html` | 1 (partie ②) | Décrire et caractériser l’organisation interne (énergies, données) | « Le frigo fabrique-t-il du froid ? » : hypothèse, goutte d’alcool, réfrigérateur vu en coupe numéroté 1 à 6 comme la fiche, fluide suivi pas à pas, seringue (comprimer chauffe, détendre refroidit), association organe → FT. Remplace l’animation Flash de la capsule A1 |
+| `frigo-connecte.html` | 1 (partie ③) | Décrire les liens entre usages et évolutions technologiques | Le réfrigérateur de « Le circuit du froid » avec ses organes connectés (7 caméra, 8 écran, 9 carte Wi-Fi, 10 capteur de porte, smartphone) : trois scènes de vie, FT7 / FT8 écrites et vérifiées (correction tolérante), quatre documents à classer par contexte (chiffres ADEME 2016) |
 | `frise-innovations.html` | 2 | Décrire les liens entre usages et évolutions technologiques | Place 10 événements par siècle (convertir l'année en siècle, sans fourchette d'années), puis les classe : découverte, invention ou innovation ; chaque événement bien placé apparaît sur la frise en vignette |
 | `quiz-evolution.html` | 2 | Décrire les liens entre usages et évolutions technologiques | 14 questions sur le vocabulaire de référence, explication après chaque réponse |
 | `robot-balance.html` | 3 | Comprendre et modifier un programme | Algorigramme des cookies avec la balance comme capteur (« masse ajoutée ≥ 225 g ? »), puis animation du robot |
@@ -32,7 +33,7 @@ connexion ; non mécanisé / mécanisé / automatisé ; 4 symboles d'algorigramm
 
 ## Adresses utiles pour projeter
 
-- « Je retiens » se gagne : sur `circuit-du-froid.html`, `robot-balance.html` et `convertisseur-can.html`, il reste
+- « Je retiens » se gagne : sur `circuit-du-froid.html`, `frigo-connecte.html`, `robot-balance.html` et `convertisseur-can.html`, il reste
   verrouillé tant que l'investigation n'est pas réussie et la conclusion écrite. Ajouter `?prof` à l'adresse
   (par exemple `circuit-du-froid.html?prof`) l'affiche directement pour projeter.
 - `robot-balance.html?corrige` remplit toutes les étapes ; `robot-balance.html?corrige&auto` lance la recette seule.
