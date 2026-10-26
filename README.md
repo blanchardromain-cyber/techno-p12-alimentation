@@ -10,7 +10,7 @@ Site publié : <https://blanchardromain-cyber.github.io/techno-p12-alimentation/
 | Fichier | Activité | Compétence (BO n°9 du 29 février 2024) | Ce que l'élève fait |
 |---|---|---|---|
 | `index.html` | — | — | Page d'accueil : la liste des cartes de la séquence |
-| `circuit-du-froid.html` | 1 | Décrire et caractériser l’organisation interne (énergies, données) | « Le frigo fabrique-t-il du froid ? » : hypothèse, goutte d'alcool, fluide suivi pas à pas, association organe → FT. Remplace l'animation Flash de la capsule A1 |
+| `circuit-du-froid.html` | 1 | Décrire et caractériser l’organisation interne (énergies, données) | « Le frigo fabrique-t-il du froid ? » : hypothèse, goutte d’alcool, réfrigérateur vu en coupe numéroté 1 à 6 comme la fiche, fluide suivi pas à pas, seringue (comprimer chauffe, détendre refroidit), association organe → FT. Remplace l’animation Flash de la capsule A1 |
 | `decodeur-contextes.html` | 1 | Décrire les liens entre usages et évolutions technologiques | Jeu STES de la capsule A1 du site, autonome |
 | `frise-innovations.html` | 2 | Décrire les liens entre usages et évolutions technologiques | Place 10 événements par siècle, puis les classe : découverte, invention ou innovation |
 | `quiz-evolution.html` | 2 | Décrire les liens entre usages et évolutions technologiques | 14 questions sur le vocabulaire de référence, explication après chaque réponse |
