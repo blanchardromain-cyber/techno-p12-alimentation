@@ -12,7 +12,7 @@ Site publié : <https://blanchardromain-cyber.github.io/techno-p12-alimentation/
 | `index.html` | — | — | Page d'accueil : la liste des cartes de la séquence |
 | `circuit-du-froid.html` | 1 | Décrire et caractériser l’organisation interne (énergies, données) | « Le frigo fabrique-t-il du froid ? » : hypothèse, goutte d’alcool, réfrigérateur vu en coupe numéroté 1 à 6 comme la fiche, fluide suivi pas à pas, seringue (comprimer chauffe, détendre refroidit), association organe → FT. Remplace l’animation Flash de la capsule A1 |
 | `decodeur-contextes.html` | 1 | Décrire les liens entre usages et évolutions technologiques | Jeu STES de la capsule A1 du site, autonome |
-| `frise-innovations.html` | 2 | Décrire les liens entre usages et évolutions technologiques | Place 10 événements par siècle, puis les classe : découverte, invention ou innovation |
+| `frise-innovations.html` | 2 | Décrire les liens entre usages et évolutions technologiques | Place 10 événements par siècle (convertir l'année en siècle, sans fourchette d'années), puis les classe : découverte, invention ou innovation ; chaque événement bien placé apparaît sur la frise en vignette |
 | `quiz-evolution.html` | 2 | Décrire les liens entre usages et évolutions technologiques | 14 questions sur le vocabulaire de référence, explication après chaque réponse |
 | `robot-balance.html` | 3 | Comprendre et modifier un programme | Algorigramme des cookies avec la balance comme capteur (« masse ajoutée ≥ 225 g ? »), puis animation du robot |
 | [Atelier algorigrammes](https://blanchardromain-cyber.github.io/technologie-stpierre/?carte=p12-act3) (site Technologie) | 3 | Comprendre et modifier un programme | Capsule `p12-act3` du site, code donné en classe |
@@ -32,6 +32,9 @@ connexion ; non mécanisé / mécanisé / automatisé ; 4 symboles d'algorigramm
 
 ## Adresses utiles pour projeter
 
+- « Je retiens » se gagne : sur `circuit-du-froid.html`, `robot-balance.html` et `convertisseur-can.html`, il reste
+  verrouillé tant que l'investigation n'est pas réussie et la conclusion écrite. Ajouter `?prof` à l'adresse
+  (par exemple `circuit-du-froid.html?prof`) l'affiche directement pour projeter.
 - `robot-balance.html?corrige` remplit toutes les étapes ; `robot-balance.html?corrige&auto` lance la recette seule.
 - `circuit-du-froid.html#pas-1` à `#pas-6` : une étape du circuit.
 
